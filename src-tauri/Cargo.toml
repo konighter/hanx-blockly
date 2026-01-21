@@ -1,0 +1,25 @@
+[package]
+name = "blockly-ide"
+version = "0.1.0"
+description = "A Blockly-based IDE for Python and Arduino"
+authors = ["Antigravity"]
+edition = "2021"
+rust-version = "1.70"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-shell = "2.0.0"
+tauri-plugin-fs = "2.0.0"
+tauri-plugin-dialog = "2.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serialport = "4.3"
+lazy_static = "1.4"
+zip = "2.2"
+
+[features]
+# default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

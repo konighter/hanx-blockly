@@ -1,0 +1,6 @@
+/* Cleared default Vite styles to fix layout issues */
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+  color: var(--primary-color) !important;
+}

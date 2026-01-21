@@ -1,0 +1,20 @@
+{
+  "name": "blockly-ide-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Blockly-based IDE for Python and Arduino",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "frontend:install": "cd frontend && pnpm install",
+    "frontend:dev": "cd frontend && pnpm run dev",
+    "frontend:build": "cd frontend && pnpm run build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.6"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.9.1"
+  }
+}

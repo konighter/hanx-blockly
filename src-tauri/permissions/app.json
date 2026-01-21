@@ -1,0 +1,11 @@
+{
+  "identifier": "all-app-commands",
+  "description": "Allows all application-level commands",
+  "commands": [
+    "list-extensions",
+    "list-ports",
+    "upload-arduino",
+    "run-python-code",
+    "stop-execution"
+  ]
+}

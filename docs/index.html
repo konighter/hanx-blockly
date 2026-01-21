@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanX Blockly IDE | 跨平台图形化编程利器</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HanX Blockly</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">特性</a>
+                <a href="#install">安装</a>
+                <a href="https://github.com/konighter/hanx-blockly" class="btn btn-outline" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="badge">Next-Gen Maker IDE</div>
+                <h1>为创客而生的<br><span class="gradient-text">图形化编程 IDE</span></h1>
+                <p>HanX Blockly 是一个基于 Tauri 和 Blockly 的现代化 IDE，专为 Python 和 Arduino 开发者设计。具备智能硬件发现、插件系统与原生性能体验。</p>
+                <div class="hero-btns">
+                    <a href="#install" class="btn btn-primary">立即开始</a>
+                    <a href="https://github.com/konighter/hanx-blockly" class="btn btn-secondary">查看源码</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="assets/hero.png" alt="HanX Blockly Interface">
+                <div class="image-glow"></div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">核心特性</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🔌</div>
+                    <h3>智能硬件发现</h3>
+                    <p>自动扫描并识别 Arduino 开发板及其串口，真正做到即插即用。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🧩</div>
+                    <h3>强大的扩展性</h3>
+                    <p>通过简单的 JSON 和 JS 定义，即可动态导入第三方组件库和新积木。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🚀</div>
+                    <h3>原生性能</h3>
+                    <p>基于 Rust (Tauri) 开发，秒级启动，丝滑流畅的交互体验。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📟</div>
+                    <h3>实时监控</h3>
+                    <p>内置高可靠串口终端，调试硬件输出从未如此简单。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="install" class="cta">
+        <div class="container">
+            <div class="cta-box">
+                <h2>准备好开始了吗？</h2>
+                <p>克隆仓库，一键构建属于你的桌面端 IDE。</p>
+                <div class="code-block">
+                    <code>git clone https://github.com/konighter/hanx-blockly.git</code>
+                    <br>
+                    <code>cd hanx-blockly/blockly</code>
+                    <br>
+                    <code>pnpm install && pnpm tauri dev</code>
+                </div>
+                <a href="https://github.com/konighter/hanx-blockly" class="btn btn-white">在 GitHub 上获取</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2026 HanX Team. 基于 MIT 协议开源.</p>
+                <div class="social-links">
+                    <a href="https://github.com/konighter/hanx-blockly">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

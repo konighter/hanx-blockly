@@ -102,6 +102,17 @@ arduinoGenerator.forBlock["sample_block"] = function (block) {
 - **数学**: 数字运算, 随机数
 - **视觉扩展**: 摄像头初始化, 捕获画面, 颜色检测（OpenCV 实现）
 
+## 🚀 发布与持续集成 (CI/CD)
+
+项目已配置 GitHub Actions 自动化流水线。
+
+- **自动构建与发布**: 当你向仓库推送一个形如 `v*` 的标签（例如 `v0.1.0`）时，GitHub 会自动启动构建任务，并为 macOS, Windows 和 Linux 生成安装包，作为 Draft Release 发布。
+- **触发方式**:
+  ```bash
+  git tag v0.1.0
+  git push origin v0.1.0
+  ```
+
 ## 📂 项目结构
 
 ```text

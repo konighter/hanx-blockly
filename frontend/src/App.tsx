@@ -7,9 +7,6 @@ import {
   Undo2, 
   Redo2, 
   Play, 
-  Calendar, 
-  BookOpen, 
-  Monitor, 
   Terminal,
   PanelLeft,
   PanelBottom,
@@ -227,7 +224,7 @@ const AppContent = () => {
         </div>
       </main>
       <footer className="ide-statusbar">
-        <div className="status-left"><div className="nav-item" style={{ color: 'white', padding: '0' }}><Calendar size={14} /> 准备就绪</div></div>
+        <div className="status-left"><div className="nav-item" style={{ color: 'white', padding: '0' }}>准备就绪</div></div>
         <div className="status-right"><span>&lt;/&gt; {modeConfig.name}</span><span>⬛ {modeConfig.label}</span><div className="nav-item" style={{ color: 'white', padding: '0' }}><Terminal size={14} /> 消息</div></div>
       </footer>
       <ExtensionManagerDialog isOpen={showExtensionDialog} onClose={() => { setShowExtensionDialog(false); setExtensionsLoaded(false); setTimeout(() => { extensionManager.loadExtensions().then(() => setExtensionsLoaded(true)); }, 1000); }} currentMode={mode} />

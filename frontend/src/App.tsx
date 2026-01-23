@@ -42,23 +42,30 @@ const AppContent = () => {
   // Mode state from context
   const { output, setOutput, ...modeState } = useModeState();
 
-  // -- Environment Initialization --
+  // -- Environment & Extension Initialization --
   useEffect(() => {
-    if (mode !== 'home') {
-        // Eagerly ensure environment for the selected mode
-        invoke('ensure_environment', { platform: mode })
-            .then((msg) => console.log(`[Env] ${msg}`))
-            .catch((err) => console.error(`[Env] Init failed: ${err}`));
-    }
-  }, [mode]);
+    if (mode === 'home') return;
 
-  useEffect(() => {
-    // Load extensions on startup
-    const initExtensions = async () => {
-      await extensionManager.loadExtensions();
-      setExtensionsLoaded(true);
+    const initMode = async () => {
+      setExtensionsLoaded(false);
+      try {
+        console.log(`[Init] Initializing ${mode} mode...`);
+        // 1. Ensure basic environment
+        await invoke('ensure_environment', { platform: mode });
+        // 2. Load extension list
+        await extensionManager.loadExtensions();
+        // 3. Prepare extensions (install dependencies)
+        await extensionManager.prepareExtensions(mode);
+        
+        setExtensionsLoaded(true);
+        console.log(`[Init] ${mode} mode ready with extensions`);
+      } catch (err) {
+        console.error(`[Init] ${mode} mode initialization failed:`, err);
+        setExtensionsLoaded(true); // Still allow editor to load
+      }
     };
-    initExtensions();
+    
+    initMode();
     
     // -- Mode-Specific Initialization (Listeners, etc.) --
     let modeCleanup: any = null;

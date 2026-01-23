@@ -85,6 +85,7 @@ fn main() {
       cmd::sys::extensions::list_extensions,
       cmd::sys::extensions::import_extension,
       cmd::sys::extensions::delete_extension,
+      cmd::sys::extensions::install_extension_dependencies,
       cmd::sys::env_manager::ensure_environment
     ])
     .plugin(tauri_plugin_shell::init())

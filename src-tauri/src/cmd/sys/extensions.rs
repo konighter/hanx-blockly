@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use std::time::UNIX_EPOCH;
 use crate::cmd::sys::env_manager::EnvironmentImplementation;
+use crate::cmd::sys::extension_manager;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExtensionMetadata {
@@ -164,7 +165,7 @@ pub fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Resul
         zip_file_name.clone()
     };
     
-    let target_dir = extensions_dir.join(&extension_name);
+    let target_dir = target_dir_for_id(&app_handle, &extension_name);
     
     // Create target directory
     if target_dir.exists() {
@@ -211,28 +212,36 @@ pub fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Resul
         return Err("扩展安装失败：manifest.json 未正确解压".to_string());
     }
     
-    // Parse manifest to get extension name and dependencies
+    // Parse manifest to get extension details
     let manifest_str = fs::read_to_string(&manifest_path).map_err(|e| e.to_string())?;
     let metadata: ExtensionMetadata = serde_json::from_str(&manifest_str)
         .map_err(|e| format!("manifest.json 格式错误: {}", e))?;
     
-    // Check for dependencies and install using generic manager
-    if let Some(deps) = &metadata.dependencies {
-        // Python Dependencies
-        if let Some(pip_deps) = &deps.pip {
-            if !pip_deps.is_empty() {
-                if let Some(env) = crate::cmd::sys::env_manager::get_implementation("python") {
-                    env.install_dependencies(&app_handle, pip_deps)
-                        .map_err(|e| format!("Python依赖安装失败: {}", e))?;
-                }
-            }
-        }
-        
-        // Future: Arduino Dependencies
-        // if let Some(arduino_deps) = &deps.arduino { ... }
-    }
+    // Trigger platform-specific on_load (includes dependency installation)
+    extension_manager::trigger_on_load(&app_handle, &metadata.platform, &metadata.id, &target_dir)
+        .map_err(|e| format!("扩展加载/依赖安装失败: {}", e))?;
     
     Ok(format!("扩展 \"{}\" 导入成功！(包含依赖安装)", metadata.name))
+}
+
+pub fn target_dir_for_id(app_handle: &tauri::AppHandle, id: &str) -> PathBuf {
+    get_extensions_dir(app_handle).join(id)
+}
+
+#[tauri::command]
+pub async fn install_extension_dependencies(app_handle: tauri::AppHandle, platform: String) -> Result<String, String> {
+    let extensions = list_extensions(app_handle.clone())?;
+    let filtered: Vec<_> = extensions.into_iter()
+        .filter(|ext| ext.metadata.platform == platform)
+        .collect();
+    
+    let count = filtered.len();
+    for ext in filtered {
+        let target_dir = target_dir_for_id(&app_handle, &ext.metadata.id);
+        extension_manager::trigger_on_load(&app_handle, &ext.metadata.platform, &ext.metadata.id, &target_dir)?;
+    }
+    
+    Ok(format!("已成功为 {} 个 {} 扩展安装依赖", count, platform))
 }
 
 #[tauri::command]
@@ -244,17 +253,22 @@ pub fn delete_extension(app_handle: tauri::AppHandle, extension_id: String) -> R
         return Err(format!("扩展 \"{}\" 不存在", extension_id));
     }
     
-    // Read manifest to get the display name
+    // Read manifest to get platform for lifecycle hook
     let manifest_path = extension_path.join("manifest.json");
-    let name = if manifest_path.exists() {
+    let (name, platform) = if manifest_path.exists() {
         let manifest_str = fs::read_to_string(&manifest_path).unwrap_or_default();
         serde_json::from_str::<ExtensionMetadata>(&manifest_str)
-            .map(|m| m.name)
-            .unwrap_or_else(|_| extension_id.clone())
+            .map(|m| (m.name, Some(m.platform)))
+            .unwrap_or_else(|_| (extension_id.clone(), None))
     } else {
-        extension_id.clone()
+        (extension_id.clone(), None)
     };
     
+    // Trigger platform-specific on_uninstall
+    if let Some(p) = platform {
+        let _ = extension_manager::trigger_on_uninstall(&app_handle, &p, &extension_id);
+    }
+
     // Delete the extension directory
     fs::remove_dir_all(&extension_path)
         .map_err(|e| format!("删除扩展失败: {}", e))?;

@@ -13,13 +13,13 @@ pub trait EnvironmentImplementation<R: Runtime> {
 
 // Implementations
 pub mod python;
-// pub mod arduino;
+pub mod arduino;
 
 // Factory / Dispatcher
 pub fn get_implementation<R: Runtime>(platform: &str) -> Option<Box<dyn EnvironmentImplementation<R>>> {
     match platform {
         "python" => Some(Box::new(python::PythonEnvironment)),
-        // "arduino" => Some(Box::new(arduino::ArduinoEnvironment)),
+        "arduino" => Some(Box::new(arduino::ArduinoEnvironment)),
         _ => None,
     }
 }

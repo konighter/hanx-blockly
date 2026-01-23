@@ -33,6 +33,16 @@ class ExtensionManager {
     }
   }
 
+  async prepareExtensions(platform: string): Promise<void> {
+    try {
+      console.log(`Preparing extensions for platform: ${platform}`);
+      await invoke('install_extension_dependencies', { platform });
+    } catch (error) {
+      console.error(`Failed to prepare extensions for ${platform}:`, error);
+      // We still continue as some extensions might work without dependencies
+    }
+  }
+
   registerExtensions(generator: any, platform: string) {
     const platformExtensions = this.extensions.filter(ext => ext.metadata.platform === platform);
     

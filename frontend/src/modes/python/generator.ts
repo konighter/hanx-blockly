@@ -54,5 +54,19 @@ export const initPythonGenerator = () => {
     return [code, 3];
   };
 
+  // @ts-ignore
+  pythonGenerator.forBlock['python_to_int'] = function(block: Blockly.Block) {
+    const value = pythonGenerator.valueToCode(block, 'VALUE', 99) || '""';
+    const code = `int(${value})`;
+    return [code, 3];
+  };
+
+  // @ts-ignore
+  pythonGenerator.forBlock['python_to_float'] = function(block: Blockly.Block) {
+    const value = pythonGenerator.valueToCode(block, 'VALUE', 99) || '""';
+    const code = `float(${value})`;
+    return [code, 3];
+  };
+
   return pythonGenerator;
 };

@@ -12,7 +12,10 @@ export const config: IModeConfig = {
   toolbox: {
     kind: 'categoryToolbox',
     contents: [
-      { kind: 'category', name: '输入/输出', colour: '160', contents: [{ kind: 'block', type: 'text_print' }, { kind: 'block', type: 'python_input' }] },
+      { kind: 'category', name: '基础', colour: '120', contents: [
+        { kind: 'block', type: 'text_print', gap: 8 },
+        { kind: 'block', type: 'python_input', gap: 8 }
+      ] },
       { kind: 'category', name: '控制', colour: '120', contents: [
         { kind: 'block', type: 'controls_if' }, 
         { kind: 'block', type: 'controls_repeat_ext' },
@@ -23,7 +26,21 @@ export const config: IModeConfig = {
       ]},
       { kind: 'category', name: '数学', colour: '230', contents: [{ kind: 'block', type: 'math_number' }, { kind: 'block', type: 'math_arithmetic' }, { kind: 'block', type: 'math_random_int' }] },
       { kind: 'category', name: '逻辑', colour: '210', contents: [{ kind: 'block', type: 'logic_compare' }, { kind: 'block', type: 'logic_operation' }, { kind: 'block', type: 'logic_negate' }, { kind: 'block', type: 'logic_boolean' }] },
-      { kind: 'category', name: '文本', colour: '160', contents: [{ kind: 'block', type: 'text' }, { kind: 'block', type: 'text_join' }, { kind: 'block', type: 'text_length' }] },
+      { kind: 'category', name: '文本', colour: '160', contents: [
+        { kind: 'block', type: 'text', gap: 8 },
+        { kind: 'block', type: 'text_join', gap: 8 },
+        { kind: 'block', type: 'text_append', gap: 8 },
+        { kind: 'block', type: 'text_length', gap: 8 },
+        { kind: 'block', type: 'text_isEmpty', gap: 8 },
+        { kind: 'block', type: 'text_indexOf', gap: 8 },
+        { kind: 'block', type: 'text_charAt', gap: 8 },
+        { kind: 'block', type: 'text_getSubstring', gap: 8 },
+        { kind: 'block', type: 'text_changeCase', gap: 8 },
+        { kind: 'block', type: 'text_trim', gap: 24 },
+        { kind: 'sep', gap: 24 },
+        { kind: 'block', type: 'python_to_int', gap: 8 },
+        { kind: 'block', type: 'python_to_float', gap: 8 }
+      ] },
       { kind: 'category', name: '列表', colour: '260', contents: [{ kind: 'block', type: 'lists_create_with' }, { kind: 'block', type: 'lists_getIndex' }, { kind: 'block', type: 'lists_setIndex' }, { kind: 'block', type: 'python_range' }] },
       { kind: 'category', name: '元组', colour: '260', contents: [{ kind: 'block', type: 'python_tuple' }] },
       { kind: 'category', name: '字典', colour: '345', contents: [{ kind: 'block', type: 'dicts_create_with' }, { kind: 'block', type: 'dict_get' }] },
@@ -84,6 +101,26 @@ export const config: IModeConfig = {
       };
     }
   
+    if (!Blockly.Blocks['python_to_int']) {
+      Blockly.Blocks['python_to_int'] = {
+        init: function() {
+          this.appendValueInput("VALUE").setCheck("String").appendField("转为整数");
+          this.setOutput(true, "Number");
+          this.setColour(160);
+        }
+      };
+    }
+
+    if (!Blockly.Blocks['python_to_float']) {
+      Blockly.Blocks['python_to_float'] = {
+        init: function() {
+          this.appendValueInput("VALUE").setCheck("String").appendField("转为浮点数");
+          this.setOutput(true, "Number");
+          this.setColour(160);
+        }
+      };
+    }
+
     return initPythonGenerator();
   },
   onRun: async (code, libs, _context) => {

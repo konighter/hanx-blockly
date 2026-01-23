@@ -39,35 +39,70 @@ export const config: IModeConfig = {
         { kind: 'block', type: 'arduino_serial_print' },
         { kind: 'block', type: 'arduino_serial_println' },
         { kind: 'block', type: 'arduino_serial_available' },
-        { kind: 'block', type: 'arduino_serial_read' },
-        { kind: 'block', type: 'text' }
+        { kind: 'block', type: 'arduino_serial_read' }
+      ]},
+      { kind: 'category', name: '文本', colour: '160', contents: [
+        { kind: 'block', type: 'text', gap: 8 },
+        { kind: 'block', type: 'text_join', gap: 8 },
+        { kind: 'block', type: 'text_append', gap: 8 },
+        { kind: 'block', type: 'text_length', gap: 8 },
+        { kind: 'block', type: 'text_isEmpty', gap: 8 },
+        { kind: 'block', type: 'text_indexOf', gap: 8 },
+        { kind: 'block', type: 'text_charAt', gap: 8 },
+        { kind: 'block', type: 'text_getSubstring', gap: 8 },
+        { kind: 'block', type: 'text_changeCase', gap: 8 },
+        { kind: 'block', type: 'text_trim', gap: 24 },
+        { kind: 'sep', gap: 24 },
+        { kind: 'block', type: 'arduino_text_toInt', gap: 8 },
+        { kind: 'block', type: 'arduino_text_toFloat', gap: 8 }
       ]},
       { kind: 'category', name: '控制', colour: '120', contents: [
-        { kind: 'block', type: 'controls_if' }, 
-        { kind: 'block', type: 'controls_repeat_ext' },
-        { kind: 'block', type: 'controls_whileUntil' },
-        { kind: 'block', type: 'controls_for' },
-        { kind: 'block', type: 'controls_flow_statements' },
-        { kind: 'sep' },
-        { kind: 'block', type: 'arduino_delay', inputs: { VALUE: { shadow: { type: 'math_number', fields: { NUM: 1000 } } } } },
-        { kind: 'block', type: 'arduino_system_time' },
-        { kind: 'sep' },
-        { kind: 'block', type: 'arduino_interrupt_control' },
-        { kind: 'sep' },
-        { kind: 'block', type: 'arduino_mstimer2_setup', inputs: { TIME: { shadow: { type: 'math_number', fields: { NUM: 500 } } } } },
-        { kind: 'block', type: 'arduino_mstimer2_control' },
-        { kind: 'sep' },
-        { kind: 'block', type: 'arduino_scoop_task' },
-        { kind: 'block', type: 'arduino_scoop_yield' },
-        { kind: 'block', type: 'arduino_scoop_sleep', inputs: { TIME: { shadow: { type: 'math_number', fields: { NUM: 1000 } } } } }
+        { kind: 'block', type: 'controls_if', gap: 16 }, 
+        { kind: 'block', type: 'controls_repeat_ext', gap: 16 },
+        { kind: 'block', type: 'controls_whileUntil', gap: 16 },
+        { kind: 'block', type: 'controls_for', gap: 16 },
+        { kind: 'block', type: 'controls_flow_statements', gap: 16 },
+        { kind: 'sep', gap: 32 },
+        { kind: 'block', type: 'arduino_delay', gap: 16, inputs: { VALUE: { shadow: { type: 'math_number', fields: { NUM: 1000 } } } } },
+        { kind: 'block', type: 'arduino_system_time', gap: 16 },
+        { kind: 'sep', gap: 32 },
+        { kind: 'block', type: 'arduino_interrupt_control', gap: 16 },
+        /* 
+        { kind: 'sep', gap: 32 },
+        { kind: 'block', type: 'arduino_mstimer2_setup', gap: 16, inputs: { TIME: { shadow: { type: 'math_number', fields: { NUM: 500 } } } } },
+        { kind: 'block', type: 'arduino_mstimer2_control', gap: 16 },
+        { kind: 'sep', gap: 32 },
+        { kind: 'block', type: 'arduino_scoop_task', gap: 16 },
+        { kind: 'block', type: 'arduino_scoop_yield', gap: 16 },
+        { kind: 'block', type: 'arduino_scoop_sleep', gap: 16, inputs: { TIME: { shadow: { type: 'math_number', fields: { NUM: 1000 } } } } }
+        */
       ]},
-      { kind: 'category', name: '数学', colour: '230', contents: [{ kind: 'block', type: 'math_number' }, { kind: 'block', type: 'math_arithmetic' }] },
-      { kind: 'category', name: '逻辑', colour: '210', contents: [{ kind: 'block', type: 'logic_compare' }, { kind: 'block', type: 'logic_operation' }, { kind: 'block', type: 'logic_negate' }, { kind: 'block', type: 'logic_boolean' }] },
-      { kind: 'category', name: '变量', colour: '330', custom: 'VARIABLE' },
-      { kind: 'category', name: '函数', colour: '290', custom: 'PROCEDURE' },
+      { kind: 'category', name: '数学', colour: '230', contents: [
+        { kind: 'block', type: 'math_number', gap: 12 }, 
+        { kind: 'block', type: 'math_arithmetic', gap: 12 }
+      ] },
+      { kind: 'category', name: '逻辑', colour: '210', contents: [
+        { kind: 'block', type: 'logic_compare', gap: 12 }, 
+        { kind: 'block', type: 'logic_operation', gap: 12 }, 
+        { kind: 'block', type: 'logic_negate', gap: 12 }, 
+        { kind: 'block', type: 'logic_boolean', gap: 12 }
+      ] },
+      { kind: 'category', name: '变量', colour: '330', custom: 'VARIABLE', contents: [
+        { kind: 'block', type: 'variables_set', inputs: { VALUE: { shadow: { type: 'math_number', fields: { NUM: 0 } } } } },
+        { kind: 'block', type: 'variables_get' }
+      ]},
+      /*
+      { kind: 'category', name: '函数定义', colour: '290', contents: [
+        { kind: 'block', type: 'arduino_functions_defnoreturn', gap: 12 },
+        { kind: 'block', type: 'arduino_functions_defreturn', gap: 12 }
+      ]},
+      */
+      { kind: 'category', name: '使用函数', colour: '290', custom: 'PROCEDURE' },
+      
     ],
   },
   initGenerator: () => {
+    defineArduinoBlocks();
     return initArduinoGenerator();
   },
   onRun: async (code, libs, context) => {

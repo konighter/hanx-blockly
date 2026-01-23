@@ -1,8 +1,188 @@
 import * as Blockly from 'blockly';
 
+let blocksRegistered = false;
+
 export const defineArduinoBlocks = () => {
-  // 1. Setup/Loop Block (Replaces the basic one)
+  if (blocksRegistered) {
+    console.log('[ArduinoBlocks] Already registered.');
+    return;
+  }
+  blocksRegistered = true;
+  console.log('[ArduinoBlocks] Registering blocks...');
+
+  // Helper Blocks for the Mutator (Register these FIRST)
+  // @ts-ignore
+  Blockly.Blocks['arduino_functions_param_container'] = {
+    init: function() {
+      this.appendDummyInput().appendField("参数列表");
+      this.appendStatementInput("STACK");
+      this.setColour(290);
+      this.contextMenu = false;
+    }
+  };
+
+  // @ts-ignore
+  Blockly.Blocks['arduino_functions_param_item'] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField("参数")
+          .appendField(new Blockly.FieldTextInput("x"), "NAME")
+          .appendField("类型")
+          .appendField(new Blockly.FieldDropdown([
+            ["int", "int"],
+            ["float", "float"],
+            ["long", "long"],
+            ["boolean", "boolean"],
+            ["String", "String"],
+            ["char", "char"],
+            ["byte", "byte"]
+          ]), "TYPE");
+      this.setPreviousStatement(true);
+      this.setNextStatement(true);
+      this.setColour(290);
+      this.contextMenu = false;
+    }
+  };
+
+  // --- COMMON HELPERS FOR TYPED FUNCTIONS ---
+
+  const commonMutationToDom = function(this: any) {
+    if (!this.arguments_) this.arguments_ = [];
+    const container = Blockly.utils.xml.createElement('mutation');
+    for (let i = 0; i < this.arguments_.length; i++) {
+        const parameter = Blockly.utils.xml.createElement('arg');
+        parameter.setAttribute('name', this.arguments_[i].name);
+        parameter.setAttribute('type', this.arguments_[i].type);
+        container.appendChild(parameter);
+    }
+    return container;
+  };
+
+  const commonDomToMutation = function(this: any, xmlElement: Element) {
+    this.arguments_ = [];
+    if (xmlElement && xmlElement.childNodes) {
+      for (let i = 0, childNode; (childNode = xmlElement.childNodes[i]); i++) {
+          const node = childNode as Element;
+          if (node.nodeName && node.nodeName.toLowerCase() === 'arg') {
+              this.arguments_.push({
+                  name: node.getAttribute('name') || '',
+                  type: node.getAttribute('type') || 'int'
+              });
+          }
+      }
+    }
+    this.updateShape_();
+  };
+
+  const commonDecompose = function(this: any, workspace: Blockly.Workspace) {
+    if (!this.arguments_) this.arguments_ = [];
+    const containerBlock = workspace.newBlock('arduino_functions_param_container');
+    if ((containerBlock as any).initSvg) (containerBlock as any).initSvg();
+    let connection = containerBlock.getInput('STACK')!.connection;
+    for (let i = 0; i < this.arguments_.length; i++) {
+        const paramBlock = workspace.newBlock('arduino_functions_param_item');
+        if ((paramBlock as any).initSvg) (paramBlock as any).initSvg();
+        paramBlock.setFieldValue(this.arguments_[i].name, 'NAME');
+        paramBlock.setFieldValue(this.arguments_[i].type, 'TYPE');
+        if (connection) {
+          connection.connect(paramBlock.previousConnection!);
+          connection = paramBlock.nextConnection;
+        }
+    }
+    return containerBlock;
+  };
+
+  const commonCompose = function(this: any, containerBlock: Blockly.Block) {
+    this.arguments_ = [];
+    let paramBlock = containerBlock.getInputTargetBlock('STACK');
+    while (paramBlock) {
+        this.arguments_.push({
+            name: paramBlock.getFieldValue('NAME'),
+            type: paramBlock.getFieldValue('TYPE')
+        });
+        paramBlock = paramBlock.nextConnection && paramBlock.nextConnection.targetBlock();
+    }
+    this.updateShape_();
+  };
+
+  const commonUpdateShape = function(this: any) {
+    if (!this.arguments_) this.arguments_ = [];
+    // Remove old arg inputs
+    let i = 0;
+    while (this.getInput('ARG' + i)) {
+        this.removeInput('ARG' + i);
+        i++;
+    }
+    // Add current arg inputs
+    for (let i = 0; i < this.arguments_.length; i++) {
+        const arg = this.arguments_[i];
+        this.appendDummyInput('ARG' + i)
+            .appendField(arg.type + " " + arg.name);
+    }
+  };
+
+  // --- TYPED FUNCTION DEFINITIONS ---
+
+  // Handle the "No Return" Typed Function
+  // @ts-ignore
+  Blockly.Blocks['arduino_functions_defnoreturn'] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField("定义函数 (void)")
+          .appendField(new Blockly.FieldTextInput("myFunction"), "NAME");
+      this.appendStatementInput("STACK")
+          .appendField("执行");
+      // @ts-ignore
+      this.setMutator(new Blockly.Mutator(['arduino_functions_param_item']));
+      this.setColour(290);
+      this.setTooltip("定义一个不返回值的函数，带类型参数。");
+      this.arguments_ = [];
+    },
+    mutationToDom: commonMutationToDom,
+    domToMutation: commonDomToMutation,
+    decompose: commonDecompose,
+    compose: commonCompose,
+    updateShape_: commonUpdateShape
+  };
+
+  // Handle the "Return" Typed Function
+  // @ts-ignore
+  Blockly.Blocks['arduino_functions_defreturn'] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField("定义函数 (返回")
+          .appendField(new Blockly.FieldDropdown([
+            ["int", "int"],
+            ["float", "float"],
+            ["long", "long"],
+            ["boolean", "boolean"],
+            ["String", "String"],
+            ["char", "char"],
+            ["byte", "byte"]
+          ]), "RETURN_TYPE")
+          .appendField(")")
+          .appendField(new Blockly.FieldTextInput("myFunction"), "NAME");
+      this.appendStatementInput("STACK")
+          .appendField("执行");
+      this.appendValueInput("RETURN")
+          .setCheck(null)
+          .appendField("返回");
+      // @ts-ignore
+      this.setMutator(new Blockly.Mutator(['arduino_functions_param_item']));
+      this.setColour(290);
+      this.setTooltip("定义一个带返回值的函数，带类型参数。");
+      this.arguments_ = [];
+    },
+    mutationToDom: commonMutationToDom,
+    domToMutation: commonDomToMutation,
+    decompose: commonDecompose,
+    compose: commonCompose,
+    updateShape_: commonUpdateShape
+  };
+
+  // 1. Standard Arduino Blocks (JSON definition)
   Blockly.defineBlocksWithJsonArray([
+    // Setup/Loop
     {
       "type": "arduino_setup",
       "message0": "初始化 (Setup) %1 执行 (Loop) %2",
@@ -14,7 +194,7 @@ export const defineArduinoBlocks = () => {
       "tooltip": "setup() 代码运行一次，loop() 代码重复运行。",
       "helpUrl": "https://www.arduino.cc/en/Reference/HomePage"
     },
-    // 2. Digital Write
+    // Digital Write
     {
       "type": "arduino_digital_write",
       "message0": "数字输出 管脚# %1 设为 %2",
@@ -27,7 +207,7 @@ export const defineArduinoBlocks = () => {
       "colour": "160",
       "tooltip": "将数字信号（HIGH或LOW）写入特定的数字。"
     },
-    // 3. Digital Read
+    // Digital Read
     {
       "type": "arduino_digital_read",
       "message0": "数字输入 管脚# %1",
@@ -38,7 +218,7 @@ export const defineArduinoBlocks = () => {
       "colour": "160",
       "tooltip": "从指定的数字管脚读取数字值。"
     },
-    // 4. Analog Write (PWM)
+    // Analog Write
     {
       "type": "arduino_analog_write",
       "message0": "模拟输出 管脚# %1 赋值为 %2",
@@ -51,7 +231,7 @@ export const defineArduinoBlocks = () => {
       "colour": "160",
       "tooltip": "将模拟值(PWM波)写入管脚。"
     },
-    // 5. Analog Read
+    // Analog Read
     {
       "type": "arduino_analog_read",
       "message0": "模拟输入 管脚# %1",
@@ -62,7 +242,7 @@ export const defineArduinoBlocks = () => {
       "colour": "160",
       "tooltip": "从指定的模拟管脚读取数值。"
     },
-    // 6. High/Low Constant
+    // High/Low Constant
     {
       "type": "arduino_highlow",
       "message0": "%1",
@@ -79,29 +259,29 @@ export const defineArduinoBlocks = () => {
       "output": "Number",
       "colour": "160"
     },
-    // 7. Hardware Interrupt
+    // Hardware Interrupt
     {
-      "type": "arduino_interrupt",
-      "message0": "硬件中断 管脚# %1 模式 %2 执行 %3",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { 
-          "type": "field_dropdown", 
-          "name": "MODE", 
-          "options": [
-            ["上升 (RISING)", "RISING"],
-            ["下降 (FALLING)", "FALLING"],
-            ["改变 (CHANGE)", "CHANGE"],
-            ["低 (LOW)", "LOW"]
-          ] 
-        },
-        { "type": "input_statement", "name": "DO" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
+       "type": "arduino_interrupt",
+       "message0": "硬件中断 管脚# %1 模式 %2 执行 %3",
+       "args0": [
+         { "type": "input_value", "name": "PIN", "check": "Number" },
+         { 
+           "type": "field_dropdown", 
+           "name": "MODE", 
+           "options": [
+             ["上升 (RISING)", "RISING"],
+             ["下降 (FALLING)", "FALLING"],
+             ["改变 (CHANGE)", "CHANGE"],
+             ["低 (LOW)", "LOW"]
+           ] 
+         },
+         { "type": "input_statement", "name": "DO" }
+       ],
+       "previousStatement": null,
+       "nextStatement": null,
+       "colour": "160"
     },
-    // 8. Detach Interrupt
+    // Detach Interrupt
     {
       "type": "arduino_detach_interrupt",
       "message0": "取消硬件中断 管脚# %1",
@@ -112,7 +292,7 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "160"
     },
-    // 9. Pulse In
+    // Pulse In
     {
       "type": "arduino_pulse_in",
       "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2",
@@ -123,7 +303,7 @@ export const defineArduinoBlocks = () => {
       "output": "Number",
       "colour": "160"
     },
-    // 10. Pulse In with Timeout
+    // Pulse In with Timeout
     {
       "type": "arduino_pulse_in_timeout",
       "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2 超时 (微秒) %3",
@@ -135,20 +315,20 @@ export const defineArduinoBlocks = () => {
       "output": "Number",
       "colour": "160"
     },
-    // 11. Tone
+    // Tone
     {
-      "type": "arduino_tone",
-      "message0": "播放音调 管脚# %1 频率 %2 持续时间 %3",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { "type": "input_value", "name": "FREQ", "check": "Number" },
-        { "type": "input_value", "name": "DURATION", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
+       "type": "arduino_tone",
+       "message0": "播放音调 管脚# %1 频率 %2 持续时间 %3",
+       "args0": [
+         { "type": "input_value", "name": "PIN", "check": "Number" },
+         { "type": "input_value", "name": "FREQ", "check": "Number" },
+         { "type": "input_value", "name": "DURATION", "check": "Number" }
+       ],
+       "previousStatement": null,
+       "nextStatement": null,
+       "colour": "160"
     },
-    // 12. NoTone
+    // NoTone
     {
       "type": "arduino_notone",
       "message0": "停止播放音调 管脚# %1",
@@ -159,7 +339,7 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "160"
     },
-    // 13. ShiftOut
+    // ShiftOut
     {
       "type": "arduino_shiftout",
       "message0": "ShiftOut 数据管脚# %1 时钟管脚# %2 顺序 %3 数值 %4",
@@ -180,7 +360,7 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "160"
     },
-    // 14. PinMode
+    // PinMode
     {
       "type": "arduino_pin_mode",
       "message0": "管脚模式 %1 设为 %2",
@@ -200,7 +380,7 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "160"
     },
-    // 15. Delay
+    // Delay
     {
       "type": "arduino_delay",
       "message0": "延时 %1 %2",
@@ -219,7 +399,7 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "120"
     },
-    // 16. Millis/Micros
+    // System Time
     {
       "type": "arduino_system_time",
       "message0": "系统运行时间 %1",
@@ -236,7 +416,7 @@ export const defineArduinoBlocks = () => {
       "output": "Number",
       "colour": "120"
     },
-    // 17. Global Interrupts
+    // Interrupt Control
     {
       "type": "arduino_interrupt_control",
       "message0": "%1中断",
@@ -254,108 +434,57 @@ export const defineArduinoBlocks = () => {
       "nextStatement": null,
       "colour": "120"
     },
-    // 18. MsTimer2 Setup
+    // Serial Print
     {
-      "type": "arduino_mstimer2_setup",
-      "message0": "MsTimer2 每隔 %1 ms 执行 %2",
-      "args0": [
-        { "type": "input_value", "name": "TIME", "check": "Number" },
-        { "type": "input_statement", "name": "DO" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
+       "type": "arduino_serial_print",
+       "message0": "串口打印 %1",
+       "args0": [
+         { "type": "input_value", "name": "CONTENT" }
+       ],
+       "previousStatement": null,
+       "nextStatement": null,
+       "colour": "160"
     },
-    // 19. MsTimer2 Start/Stop
+    // Serial Println
     {
-      "type": "arduino_mstimer2_control",
-      "message0": "MsTimer2 %1",
-      "args0": [
-        { 
-          "type": "field_dropdown", 
-          "name": "ACTION", 
-          "options": [
-            ["启动", "start"],
-            ["停止", "stop"]
-          ] 
-        }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
+       "type": "arduino_serial_println",
+       "message0": "串口打印 (换行) %1",
+       "args0": [
+         { "type": "input_value", "name": "CONTENT" }
+       ],
+       "previousStatement": null,
+       "nextStatement": null,
+       "colour": "160"
     },
-    // 20. SCoop Task
-    {
-      "type": "arduino_scoop_task",
-      "message0": "SCoop 任务 %1 %2 初始化 %3 %4 循环 %5 %6",
-      "args0": [
-        { "type": "field_input", "name": "NAME", "text": "Task1" },
-        { "type": "input_dummy" },
-        { "type": "input_dummy" },
-        { "type": "input_statement", "name": "SETUP" },
-        { "type": "input_dummy" },
-        { "type": "input_statement", "name": "LOOP" }
-      ],
-      "colour": "120"
-    },
-    // 21. SCoop Yield
-    {
-      "type": "arduino_scoop_yield",
-      "message0": "执行 SCoop 任务 (Yield)",
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
-    },
-    // 22. SCoop Sleep
-    {
-      "type": "arduino_scoop_sleep",
-      "message0": "SCoop 延时 %1 毫秒 (Sleep)",
-      "args0": [
-        { "type": "input_value", "name": "TIME", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
-    },
-    // 23. Serial Print
-    {
-      "type": "arduino_serial_print",
-      "message0": "串口打印 %1",
-      "args0": [
-        { "type": "input_value", "name": "CONTENT" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160",
-      "tooltip": "通过串口打印数据。"
-    },
-    // 24. Serial Println
-    {
-      "type": "arduino_serial_println",
-      "message0": "串口打印 (换行) %1",
-      "args0": [
-        { "type": "input_value", "name": "CONTENT" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160",
-      "tooltip": "通过串口打印数据并换行。"
-    },
-    // 25. Serial Available
+    // Serial Available
     {
       "type": "arduino_serial_available",
       "message0": "串口有数据可读?",
       "output": "Boolean",
-      "colour": "160",
-      "tooltip": "检查串口缓冲区是否有数据。"
+      "colour": "160"
     },
-    // 26. Serial Read
+    // Serial Read
     {
       "type": "arduino_serial_read",
       "message0": "串口读取字节",
       "output": "Number",
-      "colour": "160",
-      "tooltip": "从串口读取一个字节的数据。"
+      "colour": "160"
+    },
+    // Text to Int
+    {
+      "type": "arduino_text_toInt",
+      "message0": "文本 %1 转为整数",
+      "args0": [{ "type": "input_value", "name": "TEXT" }],
+      "output": "Number",
+      "colour": "160"
+    },
+    // Text to Float
+    {
+      "type": "arduino_text_toFloat",
+      "message0": "文本 %1 转为浮点数",
+      "args0": [{ "type": "input_value", "name": "TEXT" }],
+      "output": "Number",
+      "colour": "160"
     }
   ]);
 };

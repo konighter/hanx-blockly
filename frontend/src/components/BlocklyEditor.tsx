@@ -2,12 +2,22 @@ import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 're
 import * as Blockly from 'blockly';
 import 'blockly/blocks';
 import * as Zh from 'blockly/msg/zh-hans';
+import { ask, message } from '@tauri-apps/plugin-dialog';
 import type { IModeConfig } from '../modes/types';
 
 import { extensionManager } from '../services/ExtensionManager';
 
 // @ts-ignore
 Blockly.setLocale(Zh.default || Zh);
+
+// Set custom dialogs for Tauri compatibility
+Blockly.dialog.setAlert((msg, callback) => {
+    message(msg).then(callback);
+});
+
+Blockly.dialog.setConfirm((msg, callback) => {
+    ask(msg).then(callback);
+});
 
 interface BlocklyEditorProps {
   onCodeChange?: (code: string) => void;
@@ -145,8 +155,45 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
       };
     }, [modeConfig, extensionsLoaded]); // Re-run when modeConfig or extensions change
 
+    // -- Custom Prompt State --
+    const [promptState, setPromptState] = useState<{
+      isOpen: boolean;
+      message: string;
+      defaultValue: string;
+      callback: (result: string | null) => void;
+    }>({
+      isOpen: false,
+      message: '',
+      defaultValue: '',
+      callback: () => {},
+    });
+
+    useEffect(() => {
+      // Overwrite the prompt dialog globally to use our React modal
+      Blockly.dialog.setPrompt((message, defaultValue, callback) => {
+        setPromptState({
+          isOpen: true,
+          message,
+          defaultValue,
+          callback,
+        });
+      });
+    }, []);
+
+    const handlePromptConfirm = (value: string) => {
+      const { callback } = promptState;
+      setPromptState(prev => ({ ...prev, isOpen: false }));
+      callback(value);
+    };
+
+    const handlePromptCancel = () => {
+      const { callback } = promptState;
+      setPromptState(prev => ({ ...prev, isOpen: false }));
+      callback(null);
+    };
+
     return (
-      <div style={{ width: '100%', height: '100%', display: 'flex' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', position: 'relative' }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <div 
             ref={blocklyRef} 
@@ -159,6 +206,8 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
             }} 
           />
         </div>
+        
+        {/* Generated Code Preview */}
         <div className="preview-panel" style={{ 
           width: isCodeOpen ? '350px' : '0px', 
           display: isCodeOpen ? 'flex' : 'none', 
@@ -195,9 +244,59 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
             {generatedCode || '# 等待编写代码...'}
           </pre>
         </div>
+
+        {/* Custom Prompt Modal */}
+        {promptState.isOpen && (
+          <PromptModal 
+            message={promptState.message} 
+            defaultValue={promptState.defaultValue} 
+            onConfirm={handlePromptConfirm} 
+            onCancel={handlePromptCancel} 
+          />
+        )}
       </div>
     );
   }
 );
+
+interface PromptModalProps {
+  message: string;
+  defaultValue: string;
+  onConfirm: (value: string) => void;
+  onCancel: () => void;
+}
+
+const PromptModal = ({ message, defaultValue, onConfirm, onCancel }: PromptModalProps) => {
+  const [value, setValue] = useState(defaultValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3 className="modal-title">{message}</h3>
+        <input 
+          ref={inputRef}
+          type="text" 
+          value={value} 
+          onChange={(e) => setValue(e.target.value)} 
+          className="modal-input"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') onConfirm(value);
+            if (e.key === 'Escape') onCancel();
+          }}
+        />
+        <div className="modal-buttons">
+          <button onClick={onCancel} className="modal-btn secondary">取消</button>
+          <button onClick={() => onConfirm(value)} className="modal-btn primary">确定</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default BlocklyEditor;

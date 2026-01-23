@@ -38,6 +38,9 @@ arduinoGenerator.init = function(workspace: Blockly.Workspace) {
     this.nameDB_.reset();
   }
 
+  // Set variable map to ensure we can resolve variable IDs to user names
+  this.nameDB_.setVariableMap(workspace.getVariableMap());
+
   // Get all variables and declare them as global ints for Arduino
   const variables = workspace.getAllVariables();
   for (let i = 0; i < variables.length; i++) {
@@ -158,6 +161,44 @@ export const initArduinoGenerator = () => {
       args[i] = arduinoGenerator.valueToCode(block, 'ARG' + i, arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
     }
     return [`${funcName}(${args.join(', ')})`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // --- TYPED PROCEDURE BLOCKS ---
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['arduino_functions_defnoreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const branch = arduinoGenerator.statementToCode(block, 'STACK');
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+      args.push(variables[i].type + ' ' + arduinoGenerator.nameDB_.getName(variables[i].name, 'VARIABLE'));
+    }
+    const code = `void ${funcName}(${args.join(', ')}) {\n${branch}}\n`;
+    arduinoGenerator.addDefinition(funcName, code);
+    return '';
+  };
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['arduino_functions_defreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const returnType = block.getFieldValue('RETURN_TYPE') || 'int';
+    const branch = arduinoGenerator.statementToCode(block, 'STACK');
+    const returnValue = arduinoGenerator.valueToCode(block, 'RETURN', arduinoGenerator.PRECEDENCE.ATOMIC) || '';
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+        args.push(variables[i].type + ' ' + arduinoGenerator.nameDB_.getName(variables[i].name, 'VARIABLE'));
+    }
+    let code = `${returnType} ${funcName}(${args.join(', ')}) {\n${branch}`;
+    if (returnValue) {
+      code += `  return ${returnValue};\n`;
+    }
+    code += `}\n`;
+    arduinoGenerator.addDefinition(funcName, code);
+    return '';
   };
 
   // 1. Setup & Loop (Now just contributes to collections)
@@ -535,6 +576,96 @@ export const initArduinoGenerator = () => {
   arduinoGenerator.forBlock['text'] = function(block: Blockly.Block) {
     const code = JSON.stringify(block.getFieldValue('TEXT'));
     return [code, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 40. Text Join
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_join'] = function(block: Blockly.Block) {
+    // @ts-ignore
+    const n = block.itemCount_;
+    const args = [];
+    for (let i = 0; i < n; i++) {
+        args[i] = arduinoGenerator.valueToCode(block, 'ADD' + i, arduinoGenerator.PRECEDENCE.ORDER_ADDITIVE) || '""';
+    }
+    const code = args.length === 0 ? '""' : args.map(arg => `String(${arg})`).join(' + ');
+    return [code, arduinoGenerator.PRECEDENCE.ORDER_ADDITIVE];
+  };
+
+  // 41. Text Append
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_append'] = function(block: Blockly.Block) {
+    const varName = arduinoGenerator.nameDB_.getName(block.getFieldValue('VAR'), 'VARIABLE');
+    const value = arduinoGenerator.valueToCode(block, 'TEXT', arduinoGenerator.PRECEDENCE.ORDER_ADDITIVE) || '""';
+    return `${varName} += String(${value});\n`;
+  };
+
+  // 42. Text Length
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_length'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'VALUE', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`String(${text}).length()`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 43. Text Is Empty
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_isEmpty'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'VALUE', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`String(${text}).length() == 0`, arduinoGenerator.PRECEDENCE.ORDER_RELATIONAL];
+  };
+
+  // 44. Text IndexOf
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_indexOf'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'VALUE', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    const find = arduinoGenerator.valueToCode(block, 'FIND', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`String(${text}).indexOf(String(${find}))`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 45. Text CharAt
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_charAt'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'VALUE', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    const at = arduinoGenerator.valueToCode(block, 'AT', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    return [`String(${text}).charAt(${at})`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 46. Text Get Substring
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_getSubstring'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'STRING', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    const at1 = arduinoGenerator.valueToCode(block, 'AT1', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    const at2 = arduinoGenerator.valueToCode(block, 'AT2', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    return [`String(${text}).substring(${at1}, ${at2})`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 47. Text Change Case
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_changeCase'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'TEXT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    const mode = block.getFieldValue('CASE');
+    const method = (mode === 'UPPERCASE') ? 'toUpperCase' : 'toLowerCase';
+    return [`({ String _s = String(${text}); _s.${method}(); _s; })`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 48. Text Trim
+  // @ts-ignore
+  arduinoGenerator.forBlock['text_trim'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'TEXT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`({ String _s = String(${text}); _s.trim(); _s; })`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 49. Text to Int
+  // @ts-ignore
+  arduinoGenerator.forBlock['arduino_text_toInt'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'TEXT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`String(${text}).toInt()`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 50. Text to Float
+  // @ts-ignore
+  arduinoGenerator.forBlock['arduino_text_toFloat'] = function(block: Blockly.Block) {
+    const text = arduinoGenerator.valueToCode(block, 'TEXT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
+    return [`String(${text}).toFloat()`, arduinoGenerator.PRECEDENCE.ATOMIC];
   };
 
   return arduinoGenerator;

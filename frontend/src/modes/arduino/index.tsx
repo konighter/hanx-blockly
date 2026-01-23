@@ -39,7 +39,8 @@ export const config: IModeConfig = {
         { kind: 'block', type: 'arduino_serial_print' },
         { kind: 'block', type: 'arduino_serial_println' },
         { kind: 'block', type: 'arduino_serial_available' },
-        { kind: 'block', type: 'arduino_serial_read' }
+        { kind: 'block', type: 'arduino_serial_read' },
+        { kind: 'block', type: 'text' }
       ]},
       { kind: 'category', name: '控制', colour: '120', contents: [
         { kind: 'block', type: 'controls_if' }, 

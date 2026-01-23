@@ -24,7 +24,7 @@ export const config: IModeConfig = {
       { kind: 'category', name: '数学', colour: '230', contents: [{ kind: 'block', type: 'math_number' }, { kind: 'block', type: 'math_arithmetic' }, { kind: 'block', type: 'math_random_int' }] },
       { kind: 'category', name: '逻辑', colour: '210', contents: [{ kind: 'block', type: 'logic_compare' }, { kind: 'block', type: 'logic_operation' }, { kind: 'block', type: 'logic_negate' }, { kind: 'block', type: 'logic_boolean' }] },
       { kind: 'category', name: '文本', colour: '160', contents: [{ kind: 'block', type: 'text' }, { kind: 'block', type: 'text_join' }, { kind: 'block', type: 'text_length' }] },
-      { kind: 'category', name: '列表', colour: '260', contents: [{ kind: 'block', type: 'lists_create_with' }, { kind: 'block', type: 'lists_getIndex' }, { kind: 'block', type: 'lists_setIndex' }] },
+      { kind: 'category', name: '列表', colour: '260', contents: [{ kind: 'block', type: 'lists_create_with' }, { kind: 'block', type: 'lists_getIndex' }, { kind: 'block', type: 'lists_setIndex' }, { kind: 'block', type: 'python_range' }] },
       { kind: 'category', name: '元组', colour: '260', contents: [{ kind: 'block', type: 'python_tuple' }] },
       { kind: 'category', name: '字典', colour: '345', contents: [{ kind: 'block', type: 'dicts_create_with' }, { kind: 'block', type: 'dict_get' }] },
       { kind: 'sep' },
@@ -34,6 +34,21 @@ export const config: IModeConfig = {
   },
   initGenerator: () => {
     // Define Custom Blocks for Python
+    if (!Blockly.Blocks['python_range']) {
+      Blockly.Blocks['python_range'] = {
+        init: function() {
+          this.appendDummyInput().appendField("range");
+          this.appendValueInput("FROM").setCheck("Number").appendField("from");
+          this.appendValueInput("TO").setCheck("Number").appendField("to");
+          this.appendValueInput("STEP").setCheck("Number").appendField("step");
+          this.setInputsInline(true);
+          this.setOutput(true, "Array");
+          this.setColour(260);
+          this.setTooltip("Create a range of numbers.");
+        }
+      };
+    }
+
     if (!Blockly.Blocks['python_tuple']) {
       Blockly.Blocks['python_tuple'] = {
         init: function() {

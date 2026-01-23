@@ -27,7 +27,7 @@ export const initPythonGenerator = () => {
 
   // @ts-ignore
   pythonGenerator.forBlock['python_tuple'] = function(block: Blockly.Block) {
-    const items = pythonGenerator.valueToCode(block, 'ITEMS', 0) || '[]';
+    const items = pythonGenerator.valueToCode(block, 'ITEMS', 99) || '[]';
     const code = `tuple(${items})`;
     return [code, 3];
   };
@@ -39,9 +39,18 @@ export const initPythonGenerator = () => {
 
   // @ts-ignore
   pythonGenerator.forBlock['dict_get'] = function(block: Blockly.Block) {
-    const dict = pythonGenerator.valueToCode(block, 'DICT', 0) || '{}';
-    const key = pythonGenerator.valueToCode(block, 'KEY', 0) || 'None';
+    const dict = pythonGenerator.valueToCode(block, 'DICT', 99) || '{}';
+    const key = pythonGenerator.valueToCode(block, 'KEY', 99) || 'None';
     const code = `${dict}.get(${key})`;
+    return [code, 3];
+  };
+
+  // @ts-ignore
+  pythonGenerator.forBlock['python_range'] = function(block: Blockly.Block) {
+    const from = pythonGenerator.valueToCode(block, 'FROM', 99) || '0';
+    const to = pythonGenerator.valueToCode(block, 'TO', 99) || '0';
+    const step = pythonGenerator.valueToCode(block, 'STEP', 99) || '1';
+    const code = `range(${from}, ${to}, ${step})`;
     return [code, 3];
   };
 

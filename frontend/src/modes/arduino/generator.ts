@@ -24,13 +24,25 @@ arduinoGenerator.PRECEDENCE = {
   ORDER_ATOMIC: 99,
 };
 
+arduinoGenerator.RESERVED_WORDS_ = 'setup,loop,if,else,for,while,switch,case,break,continue,return,void,int,long,float,double,char,byte,word,boolean,String,pinMode,digitalWrite,digitalRead,analogRead,analogWrite,delay,delayMicroseconds,millis,micros,Serial,Serial1,Serial2,Serial3,SerialUSB,Keyboard,Mouse,tone,noTone,pulseIn,pulseInLong,shiftOut,shiftIn,attachInterrupt,detachInterrupt,interrupts,noInterrupts,HIGH,LOW,INPUT,OUTPUT,INPUT_PULLUP';
+
 // Initialize collections
-arduinoGenerator.init = function(_workspace: Blockly.Workspace) {
+arduinoGenerator.init = function(workspace: Blockly.Workspace) {
   this.definitions_ = Object.create(null);
   this.setups_ = Object.create(null);
   
-  if (Blockly.Variables) {
-    // @ts-ignore - Handle variables if needed
+  // Initialize variable database
+  if (!this.nameDB_) {
+    this.nameDB_ = new Blockly.Names(this.RESERVED_WORDS_);
+  } else {
+    this.nameDB_.reset();
+  }
+
+  // Get all variables and declare them as global ints for Arduino
+  const variables = workspace.getAllVariables();
+  for (let i = 0; i < variables.length; i++) {
+    const varName = this.nameDB_.getName(variables[i].getId(), 'VARIABLE');
+    this.addDefinition('variable_' + varName, `int ${varName} = 0;`);
   }
 };
 
@@ -72,6 +84,82 @@ arduinoGenerator.scrub_ = function(block, code, opt_thisOnly) {
 
 
 export const initArduinoGenerator = () => {
+  // --- VARIABLE BLOCKS ---
+  
+  // @ts-ignore
+  arduinoGenerator.forBlock['variables_get'] = function(block: Blockly.Block) {
+    const code = arduinoGenerator.nameDB_.getName(block.getFieldValue('VAR'), 'VARIABLE');
+    return [code, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['variables_set'] = function(block: Blockly.Block) {
+    const argument0 = arduinoGenerator.valueToCode(block, 'VALUE', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    const varName = arduinoGenerator.nameDB_.getName(block.getFieldValue('VAR'), 'VARIABLE');
+    return `${varName} = ${argument0};\n`;
+  };
+
+  // --- PROCEDURE BLOCKS ---
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['procedures_defnoreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const branch = arduinoGenerator.statementToCode(block, 'STACK');
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+      args.push('int ' + arduinoGenerator.nameDB_.getName(variables[i], 'VARIABLE'));
+    }
+    const code = `void ${funcName}(${args.join(', ')}) {\n${branch}}\n`;
+    arduinoGenerator.addDefinition(funcName, code);
+    return '';
+  };
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['procedures_defreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const branch = arduinoGenerator.statementToCode(block, 'STACK');
+    const returnValue = arduinoGenerator.valueToCode(block, 'RETURN', arduinoGenerator.PRECEDENCE.ATOMIC) || '';
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+      args.push('int ' + arduinoGenerator.nameDB_.getName(variables[i], 'VARIABLE'));
+    }
+    let code = `int ${funcName}(${args.join(', ')}) {\n${branch}`;
+    if (returnValue) {
+      code += `  return ${returnValue};\n`;
+    }
+    code += `}\n`;
+    arduinoGenerator.addDefinition(funcName, code);
+    return '';
+  };
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['procedures_callnoreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+      args[i] = arduinoGenerator.valueToCode(block, 'ARG' + i, arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    }
+    return `${funcName}(${args.join(', ')});\n`;
+  };
+
+  // @ts-ignore
+  arduinoGenerator.forBlock['procedures_callreturn'] = function(block: Blockly.Block) {
+    const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
+    const args = [];
+    // @ts-ignore
+    const variables = block.arguments_ || [];
+    for (let i = 0; i < variables.length; i++) {
+      args[i] = arduinoGenerator.valueToCode(block, 'ARG' + i, arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    }
+    return [`${funcName}(${args.join(', ')})`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
   // 1. Setup & Loop (Now just contributes to collections)
   // @ts-ignore
   arduinoGenerator.forBlock['arduino_setup'] = function(block: Blockly.Block) {
@@ -302,7 +390,7 @@ export const initArduinoGenerator = () => {
   arduinoGenerator.forBlock['controls_repeat_ext'] = function(block: Blockly.Block) {
     const repeats = arduinoGenerator.valueToCode(block, 'TIMES', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
     const branch = arduinoGenerator.statementToCode(block, 'DO');
-    const loopVar = 'count'; // Ideally unique
+    const loopVar = arduinoGenerator.nameDB_.getDistinctName('count', 'VARIABLE');
     return `for (int ${loopVar} = 0; ${loopVar} < ${repeats}; ${loopVar}++) {\n${branch}}\n`;
   };
 
@@ -321,7 +409,7 @@ export const initArduinoGenerator = () => {
   // 26. For
   // @ts-ignore
   arduinoGenerator.forBlock['controls_for'] = function(block: Blockly.Block) {
-    const variable0 = block.getFieldValue('VAR');
+    const variable0 = arduinoGenerator.nameDB_.getName(block.getFieldValue('VAR'), 'VARIABLE');
     const argument0 = arduinoGenerator.valueToCode(block, 'FROM', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
     const argument1 = arduinoGenerator.valueToCode(block, 'TO', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
     const increment = arduinoGenerator.valueToCode(block, 'BY', arduinoGenerator.PRECEDENCE.ATOMIC) || '1';
@@ -432,6 +520,21 @@ export const initArduinoGenerator = () => {
   arduinoGenerator.forBlock['arduino_serial_read'] = function(_block: Blockly.Block) {
     arduinoGenerator.addSetup('serial_begin', 'Serial.begin(9600);');
     return ['Serial.read()', arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 38. Math Random
+  // @ts-ignore
+  arduinoGenerator.forBlock['math_random_int'] = function(block: Blockly.Block) {
+    const from = arduinoGenerator.valueToCode(block, 'FROM', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    const to = arduinoGenerator.valueToCode(block, 'TO', arduinoGenerator.PRECEDENCE.ATOMIC) || '0';
+    return [`random(${from}, ${to} + 1)`, arduinoGenerator.PRECEDENCE.ATOMIC];
+  };
+
+  // 39. Text
+  // @ts-ignore
+  arduinoGenerator.forBlock['text'] = function(block: Blockly.Block) {
+    const code = JSON.stringify(block.getFieldValue('TEXT'));
+    return [code, arduinoGenerator.PRECEDENCE.ATOMIC];
   };
 
   return arduinoGenerator;

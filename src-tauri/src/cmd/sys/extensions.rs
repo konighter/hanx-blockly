@@ -56,66 +56,109 @@ pub fn get_extensions_dir(app_handle: &tauri::AppHandle) -> PathBuf {
     path
 }
 
+pub fn get_platform_extensions_dir(app_handle: &tauri::AppHandle, platform: &str) -> PathBuf {
+    let mut path = get_extensions_dir(app_handle);
+    path.push(platform);
+    if !path.exists() {
+        let _ = fs::create_dir_all(&path);
+    }
+    path
+}
+
 #[tauri::command]
-pub fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<ExtensionData>, String> {
+pub async fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<ExtensionData>, String> {
     let extensions_dir = get_extensions_dir(&app_handle);
     if !extensions_dir.exists() {
         return Ok(vec![]);
     }
 
+    // -- Migration Logic --
+    // Move extensions from root dir to platform subdirs
+    if let Ok(entries) = fs::read_dir(&extensions_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                let name = path.file_name().and_then(|s| s.to_str()).unwrap_or_default();
+                if name != "python" && name != "arduino" {
+                    let manifest_path = path.join("manifest.json");
+                    if manifest_path.exists() {
+                        if let Ok(manifest_str) = fs::read_to_string(&manifest_path) {
+                            if let Ok(metadata) = serde_json::from_str::<ExtensionMetadata>(&manifest_str) {
+                                let target_dir = get_platform_extensions_dir(&app_handle, &metadata.platform).join(&metadata.id);
+                                if !target_dir.exists() {
+                                    println!("Migrating extension {} to {}/{}", metadata.id, metadata.platform, metadata.id);
+                                    let _ = fs::rename(&path, &target_dir);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let mut extensions = Vec::new();
-    let entries = fs::read_dir(extensions_dir).map_err(|e| e.to_string())?;
+    let platforms = vec!["python", "arduino"];
+    // ... (rest of the scanning logic stays same but we wrap in async)
+    
+    for platform in platforms {
+        let platform_dir = extensions_dir.join(platform);
+        if !platform_dir.exists() {
+            continue;
+        }
 
-    for entry in entries {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let path = entry.path();
-        if path.is_dir() {
-            let manifest_path = path.join("manifest.json");
-            if manifest_path.exists() {
-                let manifest_str = fs::read_to_string(&manifest_path).map_err(|e| e.to_string())?;
-                let metadata: ExtensionMetadata = serde_json::from_str(&manifest_str).map_err(|e| e.to_string())?;
+        let entries = fs::read_dir(platform_dir).map_err(|e| e.to_string())?;
+        for entry in entries {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let path = entry.path();
+            if path.is_dir() {
+                let manifest_path = path.join("manifest.json");
+                if manifest_path.exists() {
+                    let manifest_str = fs::read_to_string(&manifest_path).map_err(|e| e.to_string())?;
+                    let metadata: ExtensionMetadata = serde_json::from_str(&manifest_str).map_err(|e| e.to_string())?;
 
-                let blocks_path = path.join("blocks.json");
-                let blocks = if blocks_path.exists() {
-                    let blocks_str = fs::read_to_string(blocks_path).map_err(|e| e.to_string())?;
-                    Some(serde_json::from_str(&blocks_str).map_err(|e| e.to_string())?)
-                } else {
-                    None
-                };
+                    let blocks_path = path.join("blocks.json");
+                    let blocks = if blocks_path.exists() {
+                        let blocks_str = fs::read_to_string(blocks_path).map_err(|e| e.to_string())?;
+                        Some(serde_json::from_str(&blocks_str).map_err(|e| e.to_string())?)
+                    } else {
+                        None
+                    };
 
-                let generator_path = path.join("generator.js");
-                let generator = if generator_path.exists() {
-                    Some(fs::read_to_string(generator_path).map_err(|e| e.to_string())?)
-                } else {
-                    None
-                };
+                    let generator_path = path.join("generator.js");
+                    let generator = if generator_path.exists() {
+                        Some(fs::read_to_string(generator_path).map_err(|e| e.to_string())?)
+                    } else {
+                        None
+                    };
 
-                let mut python_lib_path = None;
-                let python_dir = path.join("python");
-                if python_dir.exists() {
-                    python_lib_path = Some(python_dir.to_string_lossy().to_string());
+                    let mut python_lib_path = None;
+                    let python_dir = path.join("python");
+                    if python_dir.exists() {
+                        python_lib_path = Some(python_dir.to_string_lossy().to_string());
+                    }
+
+                    let mut arduino_lib_path = None;
+                    let arduino_dir = path.join("arduino");
+                    if arduino_dir.exists() {
+                        arduino_lib_path = Some(arduino_dir.to_string_lossy().to_string());
+                    }
+
+                    let updated_at = fs::metadata(&path)
+                        .ok()
+                        .and_then(|m| m.modified().ok())
+                        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+                        .map(|d| d.as_millis() as u64);
+
+                    extensions.push(ExtensionData {
+                        metadata,
+                        blocks,
+                        generator,
+                        python_lib_path,
+                        arduino_lib_path,
+                        updated_at,
+                    });
                 }
-
-                let mut arduino_lib_path = None;
-                let arduino_dir = path.join("arduino");
-                if arduino_dir.exists() {
-                    arduino_lib_path = Some(arduino_dir.to_string_lossy().to_string());
-                }
-
-                let updated_at = fs::metadata(&path)
-                    .ok()
-                    .and_then(|m| m.modified().ok())
-                    .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
-                    .map(|d| d.as_millis() as u64);
-
-                extensions.push(ExtensionData {
-                    metadata,
-                    blocks,
-                    generator,
-                    python_lib_path,
-                    arduino_lib_path,
-                    updated_at,
-                });
             }
         }
     }
@@ -124,48 +167,38 @@ pub fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<ExtensionData
 }
 
 #[tauri::command]
-pub fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Result<String, String> {
+pub async fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Result<String, String> {
     use std::io::{Read, Write};
+    use std::io::Cursor;
     
-    let extensions_dir = get_extensions_dir(&app_handle);
-    
-    // Open the ZIP file
+    // 1. Read manifest from ZIP first to determine platform
     let file = fs::File::open(&zip_path).map_err(|e| format!("无法打开文件: {}", e))?;
     let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("无效的ZIP文件: {}", e))?;
     
-    // Check if manifest.json exists in the archive
-    let has_manifest = (0..archive.len()).any(|i| {
-        if let Ok(file) = archive.by_index(i) {
-            let name = file.name();
-            name == "manifest.json" || name.ends_with("/manifest.json")
-        } else {
-            false
-        }
-    });
+    let mut manifest_content = String::new();
+    let mut manifest_found = false;
     
-    if !has_manifest {
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
+        if file.name() == "manifest.json" || file.name().ends_with("/manifest.json") {
+            file.read_to_string(&mut manifest_content).map_err(|e| e.to_string())?;
+            manifest_found = true;
+            break;
+        }
+    }
+    
+    if !manifest_found {
         return Err("扩展包中缺少 manifest.json 文件".to_string());
     }
     
-    // Find the root directory name or use zip file name
-    let zip_file_name = std::path::Path::new(&zip_path)
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("imported_extension")
-        .to_string();
+    let metadata: ExtensionMetadata = serde_json::from_str(&manifest_content)
+        .map_err(|e| format!("manifest.json 格式错误: {}", e))?;
     
-    // Determine the extension directory name
-    let first_file = archive.by_index(0).map_err(|e| e.to_string())?;
-    let first_name = first_file.name().to_string();
-    drop(first_file);
+    let platform = metadata.platform.clone();
+    let extension_id = metadata.id.clone();
     
-    let extension_name = if first_name.contains('/') {
-        first_name.split('/').next().unwrap_or(&zip_file_name).to_string()
-    } else {
-        zip_file_name.clone()
-    };
-    
-    let target_dir = target_dir_for_id(&app_handle, &extension_name);
+    // 2. Determine target directory: extensions/<platform>/<id>
+    let target_dir = target_dir_for_platform_and_id(&app_handle, &platform, &extension_id);
     
     // Create target directory
     if target_dir.exists() {
@@ -173,71 +206,65 @@ pub fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Resul
     }
     fs::create_dir_all(&target_dir).map_err(|e| format!("无法创建目录: {}", e))?;
     
-    // Extract files
+    // Determine the root folder in ZIP to strip
+    let mut zip_root = String::new();
+    for i in 0..archive.len() {
+        let file = archive.by_index(i).map_err(|e| e.to_string())?;
+        if file.name().ends_with("/manifest.json") {
+            zip_root = file.name().replace("manifest.json", "");
+            break;
+        }
+    }
+
+    // 3. Extract files
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
         let file_path = file.name().to_string();
         
-        // Skip directories
         if file_path.ends_with('/') {
             continue;
         }
         
-        // Calculate the relative path (strip the root folder if present)
-        let relative_path = if file_path.contains('/') {
-            let parts: Vec<&str> = file_path.splitn(2, '/').collect();
-            if parts.len() > 1 { parts[1] } else { &file_path }
+        // Strip zip root
+        let relative_path = if !zip_root.is_empty() && file_path.starts_with(&zip_root) {
+            &file_path[zip_root.len()..]
         } else {
             &file_path
         };
         
         let out_path = target_dir.join(relative_path);
         
-        // Create parent directories
         if let Some(parent) = out_path.parent() {
             fs::create_dir_all(parent).map_err(|e| format!("无法创建目录: {}", e))?;
         }
         
-        // Write file
         let mut outfile = fs::File::create(&out_path).map_err(|e| format!("无法创建文件: {}", e))?;
         let mut buffer = Vec::new();
         file.read_to_end(&mut buffer).map_err(|e| format!("无法读取文件: {}", e))?;
         outfile.write_all(&buffer).map_err(|e| format!("无法写入文件: {}", e))?;
     }
     
-    // Verify manifest.json exists in target
-    let manifest_path = target_dir.join("manifest.json");
-    if !manifest_path.exists() {
-        fs::remove_dir_all(&target_dir).ok();
-        return Err("扩展安装失败：manifest.json 未正确解压".to_string());
-    }
-    
-    // Parse manifest to get extension details
-    let manifest_str = fs::read_to_string(&manifest_path).map_err(|e| e.to_string())?;
-    let metadata: ExtensionMetadata = serde_json::from_str(&manifest_str)
-        .map_err(|e| format!("manifest.json 格式错误: {}", e))?;
-    
     // Trigger platform-specific on_load (includes dependency installation)
-    extension_manager::trigger_on_load(&app_handle, &metadata.platform, &metadata.id, &target_dir)
+    extension_manager::trigger_on_load(&app_handle, &platform, &extension_id, &target_dir)
         .map_err(|e| format!("扩展加载/依赖安装失败: {}", e))?;
     
-    Ok(format!("扩展 \"{}\" 导入成功！(包含依赖安装)", metadata.name))
+    Ok(format!("扩展 \"{}\" 导入成功！(平台: {}, 包含依赖安装)", metadata.name, platform))
 }
 
-pub fn target_dir_for_id(app_handle: &tauri::AppHandle, id: &str) -> PathBuf {
-    get_extensions_dir(app_handle).join(id)
+pub fn target_dir_for_platform_and_id(app_handle: &tauri::AppHandle, platform: &str, id: &str) -> PathBuf {
+    get_platform_extensions_dir(app_handle, platform).join(id)
 }
 
 #[tauri::command]
 pub async fn install_extension_dependencies(app_handle: tauri::AppHandle, platform: String) -> Result<String, String> {
-    let extensions = list_extensions(app_handle.clone())?;
+    let extensions = list_extensions(app_handle.clone()).await?;
     let filtered: Vec<_> = extensions.into_iter()
         .filter(|ext| ext.metadata.platform == platform)
         .collect();
     
     let count = filtered.len();
     for ext in filtered {
-        let target_dir = target_dir_for_id(&app_handle, &ext.metadata.id);
+        let target_dir = target_dir_for_platform_and_id(&app_handle, &platform, &ext.metadata.id);
         extension_manager::trigger_on_load(&app_handle, &ext.metadata.platform, &ext.metadata.id, &target_dir)?;
     }
     
@@ -245,33 +272,23 @@ pub async fn install_extension_dependencies(app_handle: tauri::AppHandle, platfo
 }
 
 #[tauri::command]
-pub fn delete_extension(app_handle: tauri::AppHandle, extension_id: String) -> Result<String, String> {
-    let extensions_dir = get_extensions_dir(&app_handle);
-    let extension_path = extensions_dir.join(&extension_id);
+pub async fn delete_extension(app_handle: tauri::AppHandle, extension_id: String) -> Result<String, String> {
+    // We need to find which platform this extension belongs to
+    let extensions = list_extensions(app_handle.clone()).await?;
+    let target_ext = extensions.into_iter().find(|e| e.metadata.id == extension_id);
     
-    if !extension_path.exists() {
-        return Err(format!("扩展 \"{}\" 不存在", extension_id));
-    }
-    
-    // Read manifest to get platform for lifecycle hook
-    let manifest_path = extension_path.join("manifest.json");
-    let (name, platform) = if manifest_path.exists() {
-        let manifest_str = fs::read_to_string(&manifest_path).unwrap_or_default();
-        serde_json::from_str::<ExtensionMetadata>(&manifest_str)
-            .map(|m| (m.name, Some(m.platform)))
-            .unwrap_or_else(|_| (extension_id.clone(), None))
+    if let Some(ext) = target_ext {
+        let platform = ext.metadata.platform;
+        let extension_path = target_dir_for_platform_and_id(&app_handle, &platform, &extension_id);
+        
+        let _ = extension_manager::trigger_on_uninstall(&app_handle, &platform, &extension_id);
+        
+        if extension_path.exists() {
+            fs::remove_dir_all(&extension_path).map_err(|e| format!("删除扩展失败: {}", e))?;
+        }
+        
+        Ok(format!("扩展 \"{}\" 已删除", ext.metadata.name))
     } else {
-        (extension_id.clone(), None)
-    };
-    
-    // Trigger platform-specific on_uninstall
-    if let Some(p) = platform {
-        let _ = extension_manager::trigger_on_uninstall(&app_handle, &p, &extension_id);
+        Err(format!("扩展 \"{}\" 不存在", extension_id))
     }
-
-    // Delete the extension directory
-    fs::remove_dir_all(&extension_path)
-        .map_err(|e| format!("删除扩展失败: {}", e))?;
-    
-    Ok(format!("扩展 \"{}\" 已删除", name))
 }

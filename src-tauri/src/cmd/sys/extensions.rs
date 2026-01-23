@@ -5,6 +5,7 @@ use tauri::Manager;
 use std::time::UNIX_EPOCH;
 use crate::cmd::sys::env_manager::EnvironmentImplementation;
 use crate::cmd::sys::extension_manager;
+use crate::cmd::sys::constants::{SUPPORTED_PLATFORMS, PLATFORM_PYTHON, PLATFORM_ARDUINO};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExtensionMetadata {
@@ -79,7 +80,7 @@ pub async fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<Extensi
             let path = entry.path();
             if path.is_dir() {
                 let name = path.file_name().and_then(|s| s.to_str()).unwrap_or_default();
-                if name != "python" && name != "arduino" {
+                if !SUPPORTED_PLATFORMS.contains(&name) {
                     let manifest_path = path.join("manifest.json");
                     if manifest_path.exists() {
                         if let Ok(manifest_str) = fs::read_to_string(&manifest_path) {
@@ -98,10 +99,9 @@ pub async fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<Extensi
     }
 
     let mut extensions = Vec::new();
-    let platforms = vec!["python", "arduino"];
     // ... (rest of the scanning logic stays same but we wrap in async)
     
-    for platform in platforms {
+    for platform in SUPPORTED_PLATFORMS {
         let platform_dir = extensions_dir.join(platform);
         if !platform_dir.exists() {
             continue;

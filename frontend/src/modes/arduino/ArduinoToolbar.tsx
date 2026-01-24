@@ -27,6 +27,9 @@ export const ArduinoToolbar: React.FC<ToolbarItemProps> = ({
 
   const handleCompile = async () => {
     if (!modeConfig?.onCompile) return;
+    const { setActiveBottomTab } = modeState;
+    if (setActiveBottomTab) setActiveBottomTab('output');
+    
     setOutput(`>>> Compiling ${modeConfig.label}...\n`);
     setIsRunning(true);
     try {
@@ -39,6 +42,9 @@ export const ArduinoToolbar: React.FC<ToolbarItemProps> = ({
   };
 
   const handleUpload = async () => {
+    const { setActiveBottomTab } = modeState;
+    if (setActiveBottomTab) setActiveBottomTab('output');
+
     setOutput(`>>> Sending ${modeConfig.label} code to hardware...\n`);
     setIsRunning(true);
     try {

@@ -42,6 +42,12 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
     const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
     const generatorRef = useRef<any>(null);
     const [generatedCode, setGeneratedCode] = useState('');
+    
+    // Resize State
+    const [rightPanelWidth, setRightPanelWidth] = useState(350);
+    const isResizingRight = useRef(false);
+    const startResizingX = useRef(0);
+    const startWidth = useRef(350);
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -180,6 +186,39 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
       });
     }, []);
 
+    // Resize Handlers for Code View
+    useEffect(() => {
+      const handleMouseMove = (e: MouseEvent) => {
+        if (isResizingRight.current) {
+          const delta = startResizingX.current - e.clientX; // Dragging left increases width
+          const newWidth = startWidth.current + delta;
+          const maxWidth = window.innerWidth * 0.33; // Max 1/3 width
+          const minWidth = 200;
+          
+          if (newWidth >= minWidth && newWidth <= maxWidth) {
+            setRightPanelWidth(newWidth);
+          }
+        }
+      };
+  
+      const handleMouseUp = () => {
+        isResizingRight.current = false;
+        document.body.style.cursor = 'default';
+        // Resize blockly workspace when panel size changes
+        if (workspaceRef.current) {
+           Blockly.svgResize(workspaceRef.current);
+        }
+      };
+  
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+  
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }, []);
+
     const handlePromptConfirm = (value: string) => {
       const { callback } = promptState;
       setPromptState(prev => ({ ...prev, isOpen: false }));
@@ -209,13 +248,34 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
         
         {/* Generated Code Preview */}
         <div className="preview-panel" style={{ 
-          width: isCodeOpen ? '350px' : '0px', 
+          width: isCodeOpen ? `${rightPanelWidth}px` : '0px', 
           display: isCodeOpen ? 'flex' : 'none', 
           flexDirection: 'column',
           borderLeft: '1px solid var(--border-color)',
           backgroundColor: '#f8fafc',
-          transition: 'width 0.3s ease'
+          position: 'relative',
+          transition: isResizingRight.current ? 'none' : 'width 0.3s ease' // Disable transition during drag
         }}>
+          {/* Resize Handle */}
+          <div 
+             style={{
+               position: 'absolute',
+               left: -4,
+               top: 0,
+               bottom: 0,
+               width: '8px',
+               cursor: 'col-resize',
+               zIndex: 10,
+               backgroundColor: 'transparent'
+             }}
+             onMouseDown={(e) => {
+               isResizingRight.current = true;
+               startResizingX.current = e.clientX;
+               startWidth.current = rightPanelWidth;
+               document.body.style.cursor = 'col-resize';
+               e.preventDefault();
+             }}
+          />
           <div style={{
             padding: '12px 16px',
             borderBottom: '1px solid var(--border-color)',

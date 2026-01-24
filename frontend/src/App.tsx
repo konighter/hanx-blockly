@@ -30,6 +30,10 @@ const AppContent = () => {
   const [showCode, setShowCode] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showBottomPanel, setShowBottomPanel] = useState(true);
+  const [bottomPanelHeight, setBottomPanelHeight] = useState(200);
+  const isResizingBottom = useRef(false);
+  const startResizingY = useRef(0);
+  const startHeight = useRef(200);
   const [showUserMenu, setShowUserMenu] = useState(false);
   
   const outputRef = useRef<HTMLDivElement>(null);
@@ -56,11 +60,14 @@ const AppContent = () => {
         // 2. Load extension list
         await extensionManager.loadExtensions();
         
-        // 3. Prepare extensions (install dependencies)
-        await extensionManager.prepareExtensions(mode);
-        
         setExtensionsLoaded(true);
-        console.log(`[Init] ${mode} mode ready with extensions`);
+        
+        // 3. Prepare extensions (install dependencies)
+        extensionManager.prepareExtensions(mode).then(() => {
+           console.log(`[Init] ${mode} mode dependencies prepared`);
+        });
+        
+        console.log(`[Init] ${mode} mode UI ready`);
       } catch (err) {
         console.error(`[Init] ${mode} mode initialization failed:`, err);
         setExtensionsLoaded(true); // Still allow editor to load
@@ -98,6 +105,35 @@ const AppContent = () => {
       unlistenRedo.then(f => f());
     };
   }, [mode]); // Only depend on mode for re-init
+
+  // Resize Handlers
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizingBottom.current) {
+        const delta = startResizingY.current - e.clientY;
+        const newHeight = startHeight.current + delta;
+        const maxHeight = window.innerHeight * 0.5;
+        const minHeight = 100;
+        
+        if (newHeight >= minHeight && newHeight <= maxHeight) {
+          setBottomPanelHeight(newHeight);
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      isResizingBottom.current = false;
+      document.body.style.cursor = 'default';
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   // File Operations
   const handleOpenFile = async () => {
@@ -224,7 +260,31 @@ const AppContent = () => {
           <BlocklyEditor ref={editorRef} onCodeChange={setCode} isCodeOpen={showCode} showSidebar={showSidebar} modeConfig={modeConfig} extensionsLoaded={extensionsLoaded} />
           
         </div>
-        <div className="bottom-panel" style={{ display: showBottomPanel ? 'flex' : 'none', height: showBottomPanel ? '200px' : '0' }}>
+        <div className="bottom-panel" style={{ 
+          display: showBottomPanel ? 'flex' : 'none', 
+          height: showBottomPanel ? `${bottomPanelHeight}px` : '0',
+          position: 'relative' // Ensure resize handle positioning references this
+        }}>
+          {/* Resize Handle */}
+          <div 
+            style={{ 
+              position: 'absolute', 
+              top: -4, 
+              left: 0, 
+              right: 0, 
+              height: '8px', 
+              cursor: 'row-resize', 
+              zIndex: 10,
+              backgroundColor: 'transparent' // Invisible hit area
+            }}
+            onMouseDown={(e) => {
+              isResizingBottom.current = true;
+              startResizingY.current = e.clientY;
+              startHeight.current = bottomPanelHeight;
+              document.body.style.cursor = 'row-resize';
+              e.preventDefault(); // Prevent text selection
+            }}
+          />
           {modeConfig.BottomPanel ? <modeConfig.BottomPanel /> : (
             <>
               <div className="panel-header"><Terminal size={14} style={{ marginRight: '8px' }} /> 控制台输出</div>

@@ -4,13 +4,13 @@ import { useModeState } from '../../context/ModeContext';
 import { invoke } from '@tauri-apps/api/core';
 
 export const ArduinoBottomPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'output' | 'serial'>('output');
   const { 
     output, setOutput, 
     serialLog, setSerialLog, 
     selectedPort,
     baudRate, setBaudRate,
-    isSerialOpen, setIsSerialOpen
+    isSerialOpen, setIsSerialOpen,
+    activeBottomTab: activeTab, setActiveBottomTab: setActiveTab
   } = useModeState();
   
   const [inputMessage, setInputMessage] = useState('');
@@ -162,19 +162,17 @@ export const ArduinoBottomPanel: React.FC = () => {
           {activeTab === 'output' ? (output || '等待编译输出...') : (serialLog || '串口就绪...')}
         </div>
         
+        
         {activeTab === 'serial' && (
           <div className="serial-input-bar" style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
             padding: '8px 16px',
             backgroundColor: 'rgba(15, 23, 42, 0.8)',
             borderTop: '1px solid var(--border-color)',
             display: 'flex',
             gap: '8px',
             alignItems: 'center',
-            backdropFilter: 'blur(5px)'
+            backdropFilter: 'blur(5px)',
+            flexShrink: 0  // Prevent shrinking
           }}>
             <input 
               type="text" 

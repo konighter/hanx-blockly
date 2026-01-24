@@ -13,6 +13,8 @@ interface ModeContextType {
   setBaudRate: (rate: string) => void;
   isSerialOpen: boolean;
   setIsSerialOpen: (open: boolean) => void;
+  activeBottomTab: 'output' | 'serial';
+  setActiveBottomTab: (tab: 'output' | 'serial') => void;
 }
 
 const ModeContext = createContext<ModeContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ export const ModeProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [serialLog, setSerialLog] = useState('');
   const [baudRate, setBaudRate] = useState('9600');
   const [isSerialOpen, setIsSerialOpen] = useState(false);
+  const [activeBottomTab, setActiveBottomTab] = useState<'output' | 'serial'>('output');
 
   return (
     <ModeContext.Provider value={{ 
@@ -32,7 +35,8 @@ export const ModeProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       output, setOutput,
       serialLog, setSerialLog,
       baudRate, setBaudRate,
-      isSerialOpen, setIsSerialOpen
+      isSerialOpen, setIsSerialOpen,
+      activeBottomTab, setActiveBottomTab
     }}>
       {children}
     </ModeContext.Provider>

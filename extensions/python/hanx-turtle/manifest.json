@@ -1,0 +1,37 @@
+{
+  "id": "hanx-turtle",
+  "name": "海龟画图",
+  "platform": "python",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "pip": []
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "🐢 海龟画图",
+      "colour": "#4CAF50",
+      "contents": [
+        { "kind": "block", "type": "turtle_create" },
+        { "kind": "block", "type": "turtle_forward" },
+        { "kind": "block", "type": "turtle_backward" },
+        { "kind": "block", "type": "turtle_left" },
+        { "kind": "block", "type": "turtle_right" },
+        { "kind": "block", "type": "turtle_penup" },
+        { "kind": "block", "type": "turtle_pendown" },
+        { "kind": "block", "type": "turtle_goto" },
+        { "kind": "block", "type": "turtle_circle" },
+        { "kind": "block", "type": "turtle_color" },
+        { "kind": "block", "type": "turtle_pensize" },
+        { "kind": "block", "type": "turtle_speed" },
+        { "kind": "block", "type": "turtle_fillcolor" },
+        { "kind": "block", "type": "turtle_begin_fill" },
+        { "kind": "block", "type": "turtle_end_fill" },
+        { "kind": "block", "type": "turtle_hide" },
+        { "kind": "block", "type": "turtle_show" },
+        { "kind": "block", "type": "turtle_done" }
+      ]
+    }
+  ]
+}

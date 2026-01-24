@@ -1,0 +1,2 @@
+# HanX Math Extension - Python Dependencies
+numpy>=1.20.0

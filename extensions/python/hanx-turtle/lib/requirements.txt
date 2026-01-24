@@ -1,0 +1,2 @@
+# HanX Turtle Extension - Python Dependencies
+# turtle 是 Python 标准库，无需额外安装

@@ -1,0 +1,151 @@
+[
+  {
+    "type": "motor_servo_attach",
+    "message0": "连接舵机 名称 %1 引脚 %2",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "myServo" },
+      { "type": "field_number", "name": "PIN", "value": 9, "min": 0, "max": 53 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "连接舵机到指定引脚"
+  },
+  {
+    "type": "motor_servo_write",
+    "message0": "舵机 %1 转到角度 %2",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "myServo" },
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "控制舵机转到指定角度 (0-180)"
+  },
+  {
+    "type": "motor_servo_read",
+    "message0": "舵机 %1 当前角度",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "myServo" }
+    ],
+    "output": "Number",
+    "colour": "#795548",
+    "tooltip": "读取舵机当前角度"
+  },
+  {
+    "type": "motor_servo_detach",
+    "message0": "断开舵机 %1",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "myServo" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "断开舵机连接"
+  },
+  {
+    "type": "motor_dc_setup",
+    "message0": "初始化直流电机 %1 IN1: %2 IN2: %3 ENA: %4",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "motorA" },
+      { "type": "field_number", "name": "IN1", "value": 2, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "IN2", "value": 3, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "ENA", "value": 5, "min": 0, "max": 53 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "初始化 L298N/L293D 直流电机驱动"
+  },
+  {
+    "type": "motor_dc_forward",
+    "message0": "电机 %1 正转",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "motorA" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "电机正转"
+  },
+  {
+    "type": "motor_dc_backward",
+    "message0": "电机 %1 反转",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "motorA" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "电机反转"
+  },
+  {
+    "type": "motor_dc_stop",
+    "message0": "电机 %1 停止",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "motorA" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "停止电机"
+  },
+  {
+    "type": "motor_dc_speed",
+    "message0": "设置电机 %1 速度 %2",
+    "args0": [
+      { "type": "field_input", "name": "NAME", "text": "motorA" },
+      { "type": "input_value", "name": "SPEED", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "设置电机速度 (0-255)"
+  },
+  {
+    "type": "motor_stepper_setup",
+    "message0": "初始化步进电机 步数/圈 %1 引脚 %2 %3 %4 %5",
+    "args0": [
+      { "type": "field_number", "name": "STEPS", "value": 200, "min": 1 },
+      { "type": "field_number", "name": "PIN1", "value": 8, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "PIN2", "value": 9, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "PIN3", "value": 10, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "PIN4", "value": 11, "min": 0, "max": 53 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "初始化步进电机"
+  },
+  {
+    "type": "motor_stepper_step",
+    "message0": "步进电机 转动 %1 步 方向 %2",
+    "args0": [
+      { "type": "input_value", "name": "STEPS", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "DIR",
+        "options": [
+          ["正向", "1"],
+          ["反向", "-1"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "控制步进电机转动指定步数"
+  },
+  {
+    "type": "motor_stepper_speed",
+    "message0": "设置步进电机速度 %1 RPM",
+    "args0": [
+      { "type": "input_value", "name": "RPM", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "设置步进电机转速"
+  }
+]

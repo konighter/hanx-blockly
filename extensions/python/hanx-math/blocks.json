@@ -1,0 +1,168 @@
+[
+  {
+    "type": "math_factorial",
+    "message0": "%1 的阶乘",
+    "args0": [
+      { "type": "input_value", "name": "NUM", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算一个数的阶乘 (n!)"
+  },
+  {
+    "type": "math_gcd",
+    "message0": "%1 和 %2 的最大公约数",
+    "args0": [
+      { "type": "input_value", "name": "A", "check": "Number" },
+      { "type": "input_value", "name": "B", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算两个数的最大公约数"
+  },
+  {
+    "type": "math_lcm",
+    "message0": "%1 和 %2 的最小公倍数",
+    "args0": [
+      { "type": "input_value", "name": "A", "check": "Number" },
+      { "type": "input_value", "name": "B", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算两个数的最小公倍数"
+  },
+  {
+    "type": "math_prime_check",
+    "message0": "%1 是质数？",
+    "args0": [
+      { "type": "input_value", "name": "NUM", "check": "Number" }
+    ],
+    "output": "Boolean",
+    "colour": "#9C27B0",
+    "tooltip": "检查一个数是否为质数"
+  },
+  {
+    "type": "math_fibonacci",
+    "message0": "第 %1 个斐波那契数",
+    "args0": [
+      { "type": "input_value", "name": "N", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算第n个斐波那契数"
+  },
+  {
+    "type": "math_sin",
+    "message0": "sin( %1 )",
+    "args0": [
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算正弦值 (弧度)"
+  },
+  {
+    "type": "math_cos",
+    "message0": "cos( %1 )",
+    "args0": [
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算余弦值 (弧度)"
+  },
+  {
+    "type": "math_tan",
+    "message0": "tan( %1 )",
+    "args0": [
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算正切值 (弧度)"
+  },
+  {
+    "type": "math_log",
+    "message0": "log %1 底数 %2",
+    "args0": [
+      { "type": "input_value", "name": "VALUE", "check": "Number" },
+      { "type": "input_value", "name": "BASE", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算对数"
+  },
+  {
+    "type": "math_exp",
+    "message0": "e 的 %1 次方",
+    "args0": [
+      { "type": "input_value", "name": "POWER", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算e的幂次"
+  },
+  {
+    "type": "math_array_sum",
+    "message0": "列表 %1 的总和",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算列表中所有元素的总和"
+  },
+  {
+    "type": "math_array_mean",
+    "message0": "列表 %1 的平均值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "计算列表的平均值"
+  },
+  {
+    "type": "math_array_max",
+    "message0": "列表 %1 的最大值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "获取列表中的最大值"
+  },
+  {
+    "type": "math_array_min",
+    "message0": "列表 %1 的最小值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "获取列表中的最小值"
+  },
+  {
+    "type": "math_degree_to_radian",
+    "message0": "角度 %1 转换为弧度",
+    "args0": [
+      { "type": "input_value", "name": "DEGREE", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "将角度转换为弧度"
+  },
+  {
+    "type": "math_radian_to_degree",
+    "message0": "弧度 %1 转换为角度",
+    "args0": [
+      { "type": "input_value", "name": "RADIAN", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "#9C27B0",
+    "tooltip": "将弧度转换为角度"
+  }
+]

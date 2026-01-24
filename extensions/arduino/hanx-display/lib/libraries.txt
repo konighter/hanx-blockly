@@ -1,0 +1,4 @@
+# HanX Display Extension - Arduino Libraries
+# 每行一个库名，将通过 arduino-cli lib install 安装
+Adafruit SSD1306
+Adafruit GFX Library

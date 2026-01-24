@@ -1,0 +1,32 @@
+{
+  "id": "hanx-music",
+  "name": "音乐创作",
+  "platform": "python",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "pip": ["pygame"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "🎵 音乐创作",
+      "colour": "#E91E63",
+      "contents": [
+        { "kind": "label", "text": "初始化" },
+        { "kind": "block", "type": "music_init" },
+        { "kind": "label", "text": "播放控制" },
+        { "kind": "block", "type": "music_play_note" },
+        { "kind": "block", "type": "music_play_frequency" },
+        { "kind": "block", "type": "music_set_tempo" },
+        { "kind": "block", "type": "music_rest" },
+        { "kind": "label", "text": "音符" },
+        { "kind": "block", "type": "music_note_value" },
+        { "kind": "block", "type": "music_beat_value" },
+        { "kind": "label", "text": "乐曲" },
+        { "kind": "block", "type": "music_play_melody" },
+        { "kind": "block", "type": "music_stop" }
+      ]
+    }
+  ]
+}

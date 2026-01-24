@@ -1,0 +1,105 @@
+[
+  {
+    "type": "sensor_dht_setup",
+    "message0": "初始化 DHT 传感器 引脚 %1 类型 %2",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 2, "min": 0, "max": 53 },
+      {
+        "type": "field_dropdown",
+        "name": "TYPE",
+        "options": [
+          ["DHT11", "DHT11"],
+          ["DHT22", "DHT22"],
+          ["DHT21", "DHT21"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF5722",
+    "tooltip": "初始化 DHT 温湿度传感器"
+  },
+  {
+    "type": "sensor_dht_read_temp",
+    "message0": "读取温度 (°C)",
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取当前温度值"
+  },
+  {
+    "type": "sensor_dht_read_humidity",
+    "message0": "读取湿度 (%)",
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取当前湿度值"
+  },
+  {
+    "type": "sensor_ultrasonic_setup",
+    "message0": "初始化超声波 触发引脚 %1 回声引脚 %2",
+    "args0": [
+      { "type": "field_number", "name": "TRIG", "value": 9, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "ECHO", "value": 10, "min": 0, "max": 53 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF5722",
+    "tooltip": "初始化 HC-SR04 超声波传感器"
+  },
+  {
+    "type": "sensor_ultrasonic_distance",
+    "message0": "获取超声波距离 (cm)",
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取超声波测量的距离"
+  },
+  {
+    "type": "sensor_light_read",
+    "message0": "读取光线强度 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 0, "min": 0, "max": 15 }
+    ],
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取光敏传感器的值 (0-1023)"
+  },
+  {
+    "type": "sensor_ir_obstacle",
+    "message0": "红外避障检测到障碍物 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 7, "min": 0, "max": 53 }
+    ],
+    "output": "Boolean",
+    "colour": "#FF5722",
+    "tooltip": "检测红外避障传感器是否检测到障碍物"
+  },
+  {
+    "type": "sensor_soil_moisture",
+    "message0": "读取土壤湿度 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 1, "min": 0, "max": 15 }
+    ],
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取土壤湿度传感器的值"
+  },
+  {
+    "type": "sensor_button_pressed",
+    "message0": "按钮被按下 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 12, "min": 0, "max": 53 }
+    ],
+    "output": "Boolean",
+    "colour": "#FF5722",
+    "tooltip": "检测按钮是否被按下"
+  },
+  {
+    "type": "sensor_touch_detected",
+    "message0": "触摸检测 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 8, "min": 0, "max": 53 }
+    ],
+    "output": "Boolean",
+    "colour": "#FF5722",
+    "tooltip": "检测触摸传感器是否被触发"
+  }
+]

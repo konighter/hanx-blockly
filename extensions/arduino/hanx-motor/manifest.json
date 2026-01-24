@@ -1,0 +1,34 @@
+{
+  "id": "hanx-motor",
+  "name": "电机驱动",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["Servo", "Adafruit Motor Shield V2 Library"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "⚙️ 电机驱动",
+      "colour": "#795548",
+      "contents": [
+        { "kind": "label", "text": "舵机控制" },
+        { "kind": "block", "type": "motor_servo_attach" },
+        { "kind": "block", "type": "motor_servo_write" },
+        { "kind": "block", "type": "motor_servo_read" },
+        { "kind": "block", "type": "motor_servo_detach" },
+        { "kind": "label", "text": "直流电机 (L298N/L293D)" },
+        { "kind": "block", "type": "motor_dc_setup" },
+        { "kind": "block", "type": "motor_dc_forward" },
+        { "kind": "block", "type": "motor_dc_backward" },
+        { "kind": "block", "type": "motor_dc_stop" },
+        { "kind": "block", "type": "motor_dc_speed" },
+        { "kind": "label", "text": "步进电机" },
+        { "kind": "block", "type": "motor_stepper_setup" },
+        { "kind": "block", "type": "motor_stepper_step" },
+        { "kind": "block", "type": "motor_stepper_speed" }
+      ]
+    }
+  ]
+}

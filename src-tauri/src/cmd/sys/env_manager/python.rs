@@ -62,7 +62,8 @@ impl<R: Runtime> EnvironmentImplementation<R> for PythonEnvironment {
             "install".to_string(),
             "--trusted-host".to_string(), "pypi.org".to_string(),
             "--trusted-host".to_string(), "files.pythonhosted.org".to_string(),
-            "--trusted-host".to_string(), "pypi.python.org".to_string()
+            "--trusted-host".to_string(), "pypi.python.org".to_string(),
+            "-i https://pypi.tuna.tsinghua.edu.cn/simple".to_string()
         ];
         args.extend(deps.iter().cloned());
 

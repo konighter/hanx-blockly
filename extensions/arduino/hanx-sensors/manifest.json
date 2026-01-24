@@ -1,0 +1,35 @@
+{
+  "id": "hanx-sensors",
+  "name": "常用传感器",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["DHT sensor library", "Adafruit Unified Sensor"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📡 传感器",
+      "colour": "#FF5722",
+      "contents": [
+        { "kind": "label", "text": "温湿度传感器 DHT" },
+        { "kind": "block", "type": "sensor_dht_setup" },
+        { "kind": "block", "type": "sensor_dht_read_temp" },
+        { "kind": "block", "type": "sensor_dht_read_humidity" },
+        { "kind": "label", "text": "超声波传感器 HC-SR04" },
+        { "kind": "block", "type": "sensor_ultrasonic_setup" },
+        { "kind": "block", "type": "sensor_ultrasonic_distance" },
+        { "kind": "label", "text": "光敏传感器" },
+        { "kind": "block", "type": "sensor_light_read" },
+        { "kind": "label", "text": "红外避障传感器" },
+        { "kind": "block", "type": "sensor_ir_obstacle" },
+        { "kind": "label", "text": "土壤湿度传感器" },
+        { "kind": "block", "type": "sensor_soil_moisture" },
+        { "kind": "label", "text": "按钮/触摸" },
+        { "kind": "block", "type": "sensor_button_pressed" },
+        { "kind": "block", "type": "sensor_touch_detected" }
+      ]
+    }
+  ]
+}

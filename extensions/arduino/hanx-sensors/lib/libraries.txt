@@ -1,0 +1,4 @@
+# HanX Sensors Extension - Arduino Libraries
+# 每行一个库名，将通过 arduino-cli lib install 安装
+DHT sensor library
+Adafruit Unified Sensor

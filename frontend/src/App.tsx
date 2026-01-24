@@ -37,7 +37,6 @@ const AppContent = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [extensionsLoaded, setExtensionsLoaded] = useState(false);
-  const [initStatus, setInitStatus] = useState<string | null>(null);
   const modeConfig = getModeConfig(mode);
   
   // Mode state from context
@@ -51,25 +50,19 @@ const AppContent = () => {
       setExtensionsLoaded(false);
       try {
         console.log(`[Init] Initializing ${mode} mode...`);
-        setInitStatus(`正在初始化 ${mode} 环境...`);
         // 1. Ensure basic environment
         await invoke('ensure_environment', { platform: mode });
         
-        setInitStatus('正在加载组件列表...');
         // 2. Load extension list
         await extensionManager.loadExtensions();
         
-        setInitStatus('正在安装组件依赖 (可能需要一点时间)...');
         // 3. Prepare extensions (install dependencies)
         await extensionManager.prepareExtensions(mode);
         
-        setInitStatus(null);
         setExtensionsLoaded(true);
         console.log(`[Init] ${mode} mode ready with extensions`);
       } catch (err) {
         console.error(`[Init] ${mode} mode initialization failed:`, err);
-        setInitStatus(`初始化失败: ${err}`);
-        setTimeout(() => setInitStatus(null), 3000);
         setExtensionsLoaded(true); // Still allow editor to load
       }
     };
@@ -230,27 +223,6 @@ const AppContent = () => {
         <div className="workspace-container">
           <BlocklyEditor ref={editorRef} onCodeChange={setCode} isCodeOpen={showCode} showSidebar={showSidebar} modeConfig={modeConfig} extensionsLoaded={extensionsLoaded} />
           
-          {initStatus && (
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              background: 'rgba(255, 255, 255, 0.9)',
-              padding: '20px 40px',
-              borderRadius: '12px',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-              backdropFilter: 'blur(4px)'
-            }}>
-              <div className="loading-spinner" />
-              <div style={{ fontWeight: '500', color: 'var(--primary-color)' }}>{initStatus}</div>
-            </div>
-          )}
         </div>
         <div className="bottom-panel" style={{ display: showBottomPanel ? 'flex' : 'none', height: showBottomPanel ? '200px' : '0' }}>
           {modeConfig.BottomPanel ? <modeConfig.BottomPanel /> : (

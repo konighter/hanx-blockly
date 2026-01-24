@@ -1,0 +1,189 @@
+[
+  {
+    "type": "turtle_create",
+    "message0": "创建海龟画布",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "初始化海龟绘图画布",
+    "helpUrl": ""
+  },
+  {
+    "type": "turtle_forward",
+    "message0": "前进 %1 步",
+    "args0": [
+      { "type": "input_value", "name": "DISTANCE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "海龟向前移动指定距离"
+  },
+  {
+    "type": "turtle_backward",
+    "message0": "后退 %1 步",
+    "args0": [
+      { "type": "input_value", "name": "DISTANCE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "海龟向后移动指定距离"
+  },
+  {
+    "type": "turtle_left",
+    "message0": "左转 %1 度",
+    "args0": [
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "海龟向左旋转指定角度"
+  },
+  {
+    "type": "turtle_right",
+    "message0": "右转 %1 度",
+    "args0": [
+      { "type": "input_value", "name": "ANGLE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "海龟向右旋转指定角度"
+  },
+  {
+    "type": "turtle_penup",
+    "message0": "抬起画笔",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "抬起画笔，移动时不绘制"
+  },
+  {
+    "type": "turtle_pendown",
+    "message0": "放下画笔",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "放下画笔，移动时绘制"
+  },
+  {
+    "type": "turtle_goto",
+    "message0": "移动到 x: %1 y: %2",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "海龟移动到指定坐标"
+  },
+  {
+    "type": "turtle_circle",
+    "message0": "画圆 半径 %1",
+    "args0": [
+      { "type": "input_value", "name": "RADIUS", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "绘制一个圆"
+  },
+  {
+    "type": "turtle_color",
+    "message0": "设置画笔颜色 %1",
+    "args0": [
+      { "type": "field_colour", "name": "COLOR", "colour": "#ff0000" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "设置画笔颜色"
+  },
+  {
+    "type": "turtle_pensize",
+    "message0": "设置画笔粗细 %1",
+    "args0": [
+      { "type": "input_value", "name": "SIZE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "设置画笔粗细"
+  },
+  {
+    "type": "turtle_speed",
+    "message0": "设置速度 %1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "SPEED",
+        "options": [
+          ["最快", "0"],
+          ["快", "10"],
+          ["正常", "6"],
+          ["慢", "3"],
+          ["最慢", "1"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "设置绘制速度"
+  },
+  {
+    "type": "turtle_fillcolor",
+    "message0": "设置填充颜色 %1",
+    "args0": [
+      { "type": "field_colour", "name": "COLOR", "colour": "#00ff00" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "设置填充颜色"
+  },
+  {
+    "type": "turtle_begin_fill",
+    "message0": "开始填充",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "开始填充形状"
+  },
+  {
+    "type": "turtle_end_fill",
+    "message0": "结束填充",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "结束填充形状"
+  },
+  {
+    "type": "turtle_hide",
+    "message0": "隐藏海龟",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "隐藏海龟光标"
+  },
+  {
+    "type": "turtle_show",
+    "message0": "显示海龟",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "显示海龟光标"
+  },
+  {
+    "type": "turtle_done",
+    "message0": "完成绘图",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "完成绘图并保持窗口"
+  }
+]

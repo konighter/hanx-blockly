@@ -1,0 +1,35 @@
+{
+  "id": "hanx-math",
+  "name": "高级数学",
+  "platform": "python",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "pip": ["numpy"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📐 高级数学",
+      "colour": "#9C27B0",
+      "contents": [
+        { "kind": "block", "type": "math_factorial" },
+        { "kind": "block", "type": "math_gcd" },
+        { "kind": "block", "type": "math_lcm" },
+        { "kind": "block", "type": "math_prime_check" },
+        { "kind": "block", "type": "math_fibonacci" },
+        { "kind": "block", "type": "math_sin" },
+        { "kind": "block", "type": "math_cos" },
+        { "kind": "block", "type": "math_tan" },
+        { "kind": "block", "type": "math_log" },
+        { "kind": "block", "type": "math_exp" },
+        { "kind": "block", "type": "math_array_sum" },
+        { "kind": "block", "type": "math_array_mean" },
+        { "kind": "block", "type": "math_array_max" },
+        { "kind": "block", "type": "math_array_min" },
+        { "kind": "block", "type": "math_degree_to_radian" },
+        { "kind": "block", "type": "math_radian_to_degree" }
+      ]
+    }
+  ]
+}

@@ -6,24 +6,76 @@ use super::lifecycle::ExtensionLifecycle;
 
 pub struct ArduinoExtensionLifecycle;
 
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+struct ArduinoLib {
+    name: String,
+}
+
 impl<R: Runtime> ExtensionLifecycle<R> for ArduinoExtensionLifecycle {
-    fn on_load(&self, _app_handle: &AppHandle<R>, _extension_id: &str, path: &PathBuf) -> Result<(), String> {
+    fn on_load(&self, _app_handle: &AppHandle<R>, extension_id: &str, path: &PathBuf) -> Result<(), String> {
+        println!("[Arduino] 📂 Loading extension: {} (Path: {:?})", extension_id, path);
+        
         let lib_dir = path.join("lib");
         if !lib_dir.exists() {
+            println!("[Arduino] ℹ️ No lib directory found, skipping");
             return Ok(());
         }
 
         // 1. Check for libraries.txt
         let libraries_txt = lib_dir.join("libraries.txt");
         if libraries_txt.exists() {
+            println!("[Arduino] 📋 Found libraries list: {:?}", libraries_txt);
+            
+            // Get installed libraries
+            // Runs: arduino-cli lib list --format json
+            let installed_libs_output = Command::new("arduino-cli")
+                .args(&["lib", "list", "--format", "json"])
+                .output()
+                .map_err(|e| format!("Failed to list installed libs: {}", e))?;
+            
+            let installed_names: Vec<String> = if installed_libs_output.status.success() {
+                 let json_output = String::from_utf8_lossy(&installed_libs_output.stdout);
+                 if let Ok(libs) = serde_json::from_str::<Vec<ArduinoLib>>(&json_output) {
+                     libs.into_iter().map(|l| l.name).collect()
+                 } else {
+                     vec![] // Failed to parse or empty
+                 }
+            } else {
+                 vec![] // Failed to list
+            };
+            
+            println!("[Arduino] 📚 Found {} installed libraries", installed_names.len());
+
             let content = fs::read_to_string(&libraries_txt).map_err(|e| e.to_string())?;
+            
             for line in content.lines() {
                 let lib_name = line.trim();
-                if !lib_name.is_empty() {
-                    println!("Installing arduino library: {}", lib_name);
-                    let _ = Command::new("arduino-cli")
+                if !lib_name.is_empty() && !lib_name.starts_with('#') {
+                    if installed_names.contains(&lib_name.to_string()) {
+                         println!("[Arduino] ✅ Library '{}' already installed, skipping.", lib_name);
+                         continue;
+                    }
+
+                    println!("[Arduino] 📦 Installing library: {}", lib_name);
+                    let output = Command::new("arduino-cli")
                         .args(&["lib", "install", lib_name])
-                        .status();
+                        .output();
+                    
+                    match output {
+                        Ok(out) => {
+                            if out.status.success() {
+                                println!("[Arduino] ✅ Library installed: {}", lib_name);
+                            } else {
+                                let stderr = String::from_utf8_lossy(&out.stderr);
+                                println!("[Arduino] ⚠️ Library install potential fail: {} - {}", lib_name, stderr.trim());
+                            }
+                        }
+                        Err(e) => {
+                            println!("[Arduino] ❌ Failed to run arduino-cli: {}", e);
+                        }
+                    }
                 }
             }
         }
@@ -34,20 +86,36 @@ impl<R: Runtime> ExtensionLifecycle<R> for ArduinoExtensionLifecycle {
                 if let Ok(entry) = entry {
                     let p = entry.path();
                     if p.extension().map_or(false, |ext| ext == "zip") {
-                        println!("Installing arduino library from zip: {:?}", p);
-                        let _ = Command::new("arduino-cli")
+                        println!("[Arduino扩展] 📦 从 ZIP 安装库: {:?}", p);
+                        let output = Command::new("arduino-cli")
                             .args(&["lib", "install", "--zip-path"])
                             .arg(&p)
-                            .status();
+                            .output();
+                        
+                        match output {
+                            Ok(out) => {
+                                if out.status.success() {
+                                    println!("[Arduino扩展] ✅ ZIP 库安装成功");
+                                } else {
+                                    let stderr = String::from_utf8_lossy(&out.stderr);
+                                    println!("[Arduino扩展] ⚠️ ZIP 库安装失败: {}", stderr.trim());
+                                }
+                            }
+                            Err(e) => {
+                                println!("[Arduino扩展] ❌ 执行 arduino-cli 失败: {}", e);
+                            }
+                        }
                     }
                 }
             }
         }
 
+        println!("[Arduino扩展] ✅ 扩展处理完成: {}", extension_id);
         Ok(())
     }
 
-    fn on_uninstall(&self, _app_handle: &AppHandle<R>, _extension_id: &str) -> Result<(), String> {
+    fn on_uninstall(&self, _app_handle: &AppHandle<R>, extension_id: &str) -> Result<(), String> {
+        println!("[Arduino扩展] 🗑️ 卸载扩展: {}", extension_id);
         Ok(())
     }
 }

@@ -151,10 +151,12 @@ dependencies = [
 name = "blockly-ide"
 version = "0.1.0"
 dependencies = [
+ "hex",
  "lazy_static",
  "serde",
  "serde_json",
  "serialport",
+ "sha2",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",

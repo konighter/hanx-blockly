@@ -1,0 +1,5 @@
+# HanX Motor Extension - Arduino Libraries
+# 每行一个库名，将通过 arduino-cli lib install 安装
+Servo
+Stepper
+Adafruit Motor Shield V2 Library

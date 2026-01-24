@@ -1,0 +1,37 @@
+{
+  "id": "hanx-display",
+  "name": "OLED 显示屏",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["Adafruit SSD1306", "Adafruit GFX Library"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📺 OLED 显示屏",
+      "colour": "#00BCD4",
+      "contents": [
+        { "kind": "label", "text": "初始化" },
+        { "kind": "block", "type": "oled_init" },
+        { "kind": "label", "text": "显示控制" },
+        { "kind": "block", "type": "oled_clear" },
+        { "kind": "block", "type": "oled_display" },
+        { "kind": "label", "text": "文本" },
+        { "kind": "block", "type": "oled_set_cursor" },
+        { "kind": "block", "type": "oled_set_textsize" },
+        { "kind": "block", "type": "oled_set_textcolor" },
+        { "kind": "block", "type": "oled_print" },
+        { "kind": "block", "type": "oled_println" },
+        { "kind": "label", "text": "图形" },
+        { "kind": "block", "type": "oled_draw_pixel" },
+        { "kind": "block", "type": "oled_draw_line" },
+        { "kind": "block", "type": "oled_draw_rect" },
+        { "kind": "block", "type": "oled_fill_rect" },
+        { "kind": "block", "type": "oled_draw_circle" },
+        { "kind": "block", "type": "oled_fill_circle" }
+      ]
+    }
+  ]
+}

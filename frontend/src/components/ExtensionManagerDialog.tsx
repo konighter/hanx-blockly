@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Trash2, Upload, X } from 'lucide-react';
+import { Package, Trash2, Upload, X, RotateCw } from 'lucide-react';
 import { extensionManager, type ExtensionData } from '../services/ExtensionManager';
 import { open } from '@tauri-apps/plugin-dialog';
 
@@ -110,7 +110,34 @@ const ExtensionManagerDialog: React.FC<ExtensionManagerDialogProps> = ({ isOpen,
             </div>
           )}
 
-          <div style={{ padding: '16px', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid #f0f0f0' }}>
+          <div style={{ padding: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px', borderBottom: '1px solid #f0f0f0' }}>
+            <button 
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  const result = await extensionManager.refreshExtensions();
+                  setMessage({ text: result, type: 'success' });
+                  // If not in home mode, re-prepare dependencies
+                  if (currentMode !== 'home') {
+                    await extensionManager.prepareExtensions(currentMode);
+                  }
+                } catch (e) {
+                  setMessage({ text: `Refresh failed: ${e}`, type: 'error' });
+                }
+                setLoading(false);
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 16px', backgroundColor: '#edf2f7', color: '#4a5568',
+                border: '1px solid #e2e8f0', borderRadius: '4px', cursor: 'pointer',
+                fontWeight: 500, fontSize: '14px', transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#edf2f7'}
+              title="Refresh and re-check dependencies"
+            >
+              <RotateCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+            </button>
             <button 
               onClick={handleImport}
               style={{

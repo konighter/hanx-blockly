@@ -8,6 +8,7 @@ export const arduinoGenerator = new Blockly.Generator('Arduino') as any;
 // Attach custom collections
 arduinoGenerator.definitions_ = Object.create(null);
 arduinoGenerator.setups_ = Object.create(null);
+arduinoGenerator.loops_ = Object.create(null);
 
 // Order of precedence
 arduinoGenerator.PRECEDENCE = {
@@ -30,6 +31,7 @@ arduinoGenerator.RESERVED_WORDS_ = 'setup,loop,if,else,for,while,switch,case,bre
 arduinoGenerator.init = function(workspace: Blockly.Workspace) {
   this.definitions_ = Object.create(null);
   this.setups_ = Object.create(null);
+  this.loops_ = Object.create(null);
   
   // Initialize variable database
   if (!this.nameDB_) {
@@ -58,21 +60,40 @@ arduinoGenerator.addDefinition = function(name: string, code: string) {
   this.definitions_[name] = code;
 };
 
+arduinoGenerator.addLoop = function(name: string, code: string) {
+  this.loops_[name] = code;
+};
+
 // Finalize code structure
 arduinoGenerator.finish = function(code: string) {
   const definitions = [];
-  for (let name in this.definitions_) {
-    definitions.push(this.definitions_[name]);
+  const definitionKeys = Object.keys(this.definitions_).sort();
+  for (let key of definitionKeys) {
+    definitions.push(this.definitions_[key]);
   }
   
   const setups = [];
-  for (let name in this.setups_) {
-    setups.push('  ' + this.setups_[name]);
+  const setupKeys = Object.keys(this.setups_).sort();
+  for (let key of setupKeys) {
+    const lines = this.setups_[key].split('\n');
+    for (let line of lines) {
+      setups.push('  ' + line);
+    }
   }
   
   const allDefs = definitions.join('\n') + (definitions.length ? '\n\n' : '');
   const setupCode = `void setup() {\n${setups.join('\n')}\n}\n\n`;
-  const loopCode = `void loop() {\n${code.split('\n').map((line: string) => line ? '  ' + line : line).join('\n')}\n}\n`;
+  
+  const loops = [];
+  const loopKeys = Object.keys(this.loops_).sort();
+  for (let key of loopKeys) {
+    const lines = this.loops_[key].split('\n');
+    for (let line of lines) {
+      loops.push('  ' + line);
+    }
+  }
+
+  const loopCode = `void loop() {\n${loops.join('\n')}${loops.length ? '\n' : ''}${code.split('\n').filter((l: string) => l).map((line: string) => '  ' + line).join('\n')}\n}\n`;
   
   return allDefs + setupCode + loopCode;
 };

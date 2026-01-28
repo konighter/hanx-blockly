@@ -136,7 +136,7 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
              }
            } catch (e) {
              console.error("Code generation error:", e);
-             setGeneratedCode("// Error generating code");
+             setGeneratedCode("// Error generating code:\n// " + (e instanceof Error ? e.message : String(e)));
            }
         }
       });

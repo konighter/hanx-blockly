@@ -1,4 +1,4 @@
-use tauri::{Runtime, AppHandle};
+use tauri::{Runtime, AppHandle, Manager};
 use std::path::PathBuf;
 use std::process::{Command};
 use std::fs;
@@ -39,37 +39,47 @@ impl<R: Runtime> ExtensionLifecycle<R> for ArduinoExtensionLifecycle {
         if libraries_txt.exists() {
             println!("[Arduino] 📋 Found libraries list: {:?}", libraries_txt);
             
-            // Get installed libraries (including built-ins)
-            // Runs: arduino-cli lib list --all --format json
-            let installed_libs_output = Command::new("arduino-cli")
-                .args(&["lib", "list", "--all", "--format", "json"])
-                .output()
-                .map_err(|e| format!("Failed to list installed libs: {}", e))?;
+            let session = _app_handle.state::<crate::SessionState>();
+            let mut cache = session.arduino_libraries_cache.lock().unwrap();
             
-            let installed_names: Vec<String> = if installed_libs_output.status.success() {
-                 let json_output = String::from_utf8_lossy(&installed_libs_output.stdout);
-                 match serde_json::from_str::<ArduinoLibList>(&json_output) {
-                     Ok(list) => {
-                         let names: Vec<String> = list.libraries
-                             .unwrap_or_default()
-                             .into_iter()
-                             .map(|l| l.library.name)
-                             .collect();
-                         println!("[Arduino] 📚 Parsed {} libraries from index", names.len());
-                         names
-                     }
-                     Err(e) => {
-                         println!("[Arduino] ❌ Failed to parse library list JSON: {}", e);
-                         vec![]
-                     }
-                 }
+            let installed_names: Vec<String> = if let Some(libs) = &*cache {
+                println!("[Arduino] ⏩ Using cached library list ({} libs)", libs.len() as usize);
+                libs.clone()
             } else {
-                 let stderr = String::from_utf8_lossy(&installed_libs_output.stderr);
-                 println!("[Arduino] ❌ arduino-cli lib list --all failed: {}", stderr.trim());
-                 vec![] // Failed to list
+                // Get installed libraries (including built-ins)
+                // Runs: arduino-cli lib list --all --format json
+                println!("[Arduino] 🔍 Fetching installed libraries list...");
+                let installed_libs_output = Command::new("arduino-cli")
+                    .args(&["lib", "list", "--all", "--format", "json"])
+                    .output()
+                    .map_err(|e| format!("Failed to list installed libs: {}", e))?;
+                
+                let names: Vec<String> = if installed_libs_output.status.success() {
+                     let json_output = String::from_utf8_lossy(&installed_libs_output.stdout);
+                     match serde_json::from_str::<ArduinoLibList>(&json_output) {
+                         Ok(list) => {
+                             let n: Vec<String> = list.libraries
+                                 .unwrap_or_default()
+                                 .into_iter()
+                                 .map(|l| l.library.name)
+                                 .collect();
+                             println!("[Arduino] 📚 Parsed {} libraries from index", n.len());
+                             n
+                         }
+                         Err(e) => {
+                             println!("[Arduino] ❌ Failed to parse library list JSON: {}", e);
+                             vec![]
+                         }
+                     }
+                } else {
+                     let stderr = String::from_utf8_lossy(&installed_libs_output.stderr);
+                     println!("[Arduino] ❌ arduino-cli lib list --all failed: {}", stderr.trim());
+                     vec![] // Failed to list
+                };
+                
+                *cache = Some(names.clone());
+                names
             };
-            
-            println!("[Arduino] 📚 Found {} installed libraries", installed_names.len());
 
             let content = fs::read_to_string(&libraries_txt).map_err(|e| e.to_string())?;
             

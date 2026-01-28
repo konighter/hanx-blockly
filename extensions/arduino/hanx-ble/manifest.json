@@ -16,7 +16,13 @@
         { "kind": "label", "text": "BLE 蓝牙 (R4内置模块)" },
         { "kind": "block", "type": "ble_init" },
         { "kind": "block", "type": "ble_advertise" },
-        { "kind": "block", "type": "ble_is_connected" }
+        { "kind": "block", "type": "ble_is_connected" },
+        { "kind": "label", "text": "--- 服务与特征 ---" },
+        { "kind": "block", "type": "ble_service_init" },
+        { "kind": "block", "type": "ble_char_init" },
+        { "kind": "block", "type": "ble_char_write" },
+        { "kind": "block", "type": "ble_char_read" },
+        { "kind": "block", "type": "ble_char_was_written" }
       ]
     }
   ]

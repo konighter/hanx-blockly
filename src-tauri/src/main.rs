@@ -8,8 +8,20 @@ mod cmd;
 use tauri::menu::{Menu, Submenu, MenuItem, PredefinedMenuItem};
 use tauri::{Emitter, Manager};
 
+use std::sync::Mutex;
+use std::collections::HashSet;
+
+struct SessionState {
+  initialized_platforms: Mutex<HashSet<String>>,
+  arduino_libraries_cache: Mutex<Option<Vec<String>>>,
+}
+
 fn main() {
   tauri::Builder::default()
+    .manage(SessionState {
+      initialized_platforms: Mutex::new(HashSet::new()),
+      arduino_libraries_cache: Mutex::new(None),
+    })
     .setup(|app| {
       // Build File menu
       let open_item = MenuItem::with_id(app, "open", "打开...", true, Some("CmdOrCtrl+O"))?;
@@ -86,6 +98,7 @@ fn main() {
       cmd::sys::extensions::import_extension,
       cmd::sys::extensions::delete_extension,
       cmd::sys::extensions::install_extension_dependencies,
+      cmd::sys::extensions::refresh_extensions,
       cmd::sys::env_manager::ensure_environment
     ])
     .plugin(tauri_plugin_shell::init())

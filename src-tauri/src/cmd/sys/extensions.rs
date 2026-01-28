@@ -254,7 +254,19 @@ pub fn target_dir_for_platform_and_id(app_handle: &tauri::AppHandle, platform: &
 }
 
 #[tauri::command]
-pub async fn install_extension_dependencies(app_handle: tauri::AppHandle, platform: String) -> Result<String, String> {
+pub async fn install_extension_dependencies(
+    app_handle: tauri::AppHandle, 
+    platform: String,
+    session: tauri::State<'_, crate::SessionState>
+) -> Result<String, String> {
+    {
+        let initialized = session.initialized_platforms.lock().unwrap();
+        if initialized.contains(&platform) {
+            println!("[ExtensionManager] ⏩ 跳过平台 {} 的依赖检查（本次会话已完成）", platform);
+            return Ok(format!("平台 {} 的依赖已就绪（缓存）", platform));
+        }
+    }
+
     let extensions = list_extensions(app_handle.clone()).await?;
     let filtered: Vec<_> = extensions.into_iter()
         .filter(|ext| ext.metadata.platform == platform)
@@ -266,7 +278,28 @@ pub async fn install_extension_dependencies(app_handle: tauri::AppHandle, platfo
         extension_manager::trigger_on_load(&app_handle, &ext.metadata.platform, &ext.metadata.id, &target_dir)?;
     }
     
+    {
+        let mut initialized = session.initialized_platforms.lock().unwrap();
+        initialized.insert(platform.clone());
+    }
+
     Ok(format!("已成功为 {} 个 {} 扩展安装依赖", count, platform))
+}
+
+#[tauri::command]
+pub async fn refresh_extensions(
+    session: tauri::State<'_, crate::SessionState>
+) -> Result<String, String> {
+    {
+        let mut initialized = session.initialized_platforms.lock().unwrap();
+        initialized.clear();
+    }
+    {
+        let mut cache = session.arduino_libraries_cache.lock().unwrap();
+        *cache = None;
+    }
+    println!("[ExtensionManager] 🔄 已手动清除扩展与依赖缓存");
+    Ok("扩展缓存已刷新".to_string())
 }
 
 #[tauri::command]

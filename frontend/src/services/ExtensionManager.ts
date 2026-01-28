@@ -126,6 +126,13 @@ class ExtensionManager {
     await this.loadExtensions();
     return result;
   }
+
+  async refreshExtensions(): Promise<string> {
+    const result = await invoke<string>('refresh_extensions');
+    // Reload extensions list after reset
+    await this.loadExtensions();
+    return result;
+  }
 }
 
 export const extensionManager = new ExtensionManager();

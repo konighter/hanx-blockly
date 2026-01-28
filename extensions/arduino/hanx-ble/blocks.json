@@ -24,5 +24,80 @@
     "output": "Boolean",
     "colour": "#3F51B5",
     "tooltip": "检查是否有中央设备（如手机）连接到本模块。"
+  },
+  {
+    "type": "ble_service_init",
+    "message0": "定义 BLE 服务 UUID: %1",
+    "args0": [
+      { "type": "field_input", "name": "UUID", "text": "180F" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#3F51B5",
+    "tooltip": "定义一个 BLE 服务。UUID 可以是 16 位（如 180F）或 128 位。"
+  },
+  {
+    "type": "ble_char_init",
+    "message0": "定义 BLE 特征 UUID: %1 属性: %2 类型: %3",
+    "args0": [
+      { "type": "field_input", "name": "UUID", "text": "2A19" },
+      {
+        "type": "field_dropdown",
+        "name": "PROP",
+        "options": [
+          ["只读", "BLERead"],
+          ["只写", "BLEWrite"],
+          ["读写", "BLERead | BLEWrite"],
+          ["只读+通知", "BLERead | BLENotify"],
+          ["读写+通知", "BLERead | BLEWrite | BLENotify"]
+        ]
+      },
+      {
+        "type": "field_dropdown",
+        "name": "TYPE",
+        "options": [
+          ["整数 (Int)", "BLEIntCharacteristic"],
+          ["字节 (Byte)", "BLEByteCharacteristic"],
+          ["浮点数 (Float)", "BLEFloatCharacteristic"],
+          ["字符串 (String)", "BLEStringCharacteristic"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#3F51B5",
+    "tooltip": "在一个服务中定义一个特征。属性决定了中央设备是否可以读、写或接收通知。"
+  },
+  {
+    "type": "ble_char_write",
+    "message0": "BLE 写入特征 UUID: %1 值: %2",
+    "args0": [
+      { "type": "field_input", "name": "UUID", "text": "2A19" },
+      { "type": "input_value", "name": "VALUE" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#3F51B5",
+    "tooltip": "向指定的 BLE 特征写入值（如果开启了通知，则会发送通知）。"
+  },
+  {
+    "type": "ble_char_read",
+    "message0": "BLE 读取特征 UUID: %1",
+    "args0": [
+      { "type": "field_input", "name": "UUID", "text": "2A19" }
+    ],
+    "output": null,
+    "colour": "#3F51B5",
+    "tooltip": "获取中央设备写入该特征的最新值。"
+  },
+  {
+    "type": "ble_char_was_written",
+    "message0": "BLE 特征 UUID: %1 被写入?",
+    "args0": [
+      { "type": "field_input", "name": "UUID", "text": "2A19" }
+    ],
+    "output": "Boolean",
+    "colour": "#3F51B5",
+    "tooltip": "检查中央设备最近是否写入了该特征。"
   }
 ]

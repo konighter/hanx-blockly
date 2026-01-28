@@ -91,6 +91,16 @@ fn main() {
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_log::Builder::new()
+      .targets([
+        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
+        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir { file_name: Some("app".to_string()) }),
+        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview),
+      ])
+      .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+      .level(log::LevelFilter::Info)
+      .build()
+    )
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

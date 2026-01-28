@@ -3,9 +3,8 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use std::time::UNIX_EPOCH;
-use crate::cmd::sys::env_manager::EnvironmentImplementation;
 use crate::cmd::sys::extension_manager;
-use crate::cmd::sys::constants::{SUPPORTED_PLATFORMS, PLATFORM_PYTHON, PLATFORM_ARDUINO};
+use crate::cmd::sys::constants::SUPPORTED_PLATFORMS;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExtensionMetadata {
@@ -169,7 +168,6 @@ pub async fn list_extensions(app_handle: tauri::AppHandle) -> Result<Vec<Extensi
 #[tauri::command]
 pub async fn import_extension(app_handle: tauri::AppHandle, zip_path: String) -> Result<String, String> {
     use std::io::{Read, Write};
-    use std::io::Cursor;
     
     // 1. Read manifest from ZIP first to determine platform
     let file = fs::File::open(&zip_path).map_err(|e| format!("无法打开文件: {}", e))?;

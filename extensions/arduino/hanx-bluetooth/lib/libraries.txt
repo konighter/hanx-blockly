@@ -1,0 +1,3 @@
+# Bluetooth Communication - Arduino Libraries
+# SoftwareSerial is usually built-in, but listed here for consistency
+SoftwareSerial

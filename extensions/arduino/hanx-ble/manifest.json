@@ -1,0 +1,23 @@
+{
+  "id": "hanx-ble",
+  "name": "BLE/蓝牙 (R4内置)",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["ArduinoBLE"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📡 通信模块",
+      "colour": "#3F51B5",
+      "contents": [
+        { "kind": "label", "text": "BLE 蓝牙 (R4内置模块)" },
+        { "kind": "block", "type": "ble_init" },
+        { "kind": "block", "type": "ble_advertise" },
+        { "kind": "block", "type": "ble_is_connected" }
+      ]
+    }
+  ]
+}

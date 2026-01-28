@@ -105,3 +105,61 @@ generator.forBlock['motor_stepper_speed'] = function(block) {
   var rpm = generator.valueToCode(block, 'RPM', generator.PRECEDENCE.ATOMIC) || '60';
   return 'myStepper.setSpeed(' + rpm + ');\n';
 };
+
+// ============ TB6612FNG Motor Driver ============
+
+generator.forBlock['motor_tb6612_setup'] = function(block) {
+  var stby = block.getFieldValue('STBY');
+  var pwma = block.getFieldValue('PWMA');
+  var ain1 = block.getFieldValue('AIN1');
+  var ain2 = block.getFieldValue('AIN2');
+  var pwmb = block.getFieldValue('PWMB');
+  var bin1 = block.getFieldValue('BIN1');
+  var bin2 = block.getFieldValue('BIN2');
+  
+  generator.addDefinition('tb6612_pins', 
+    '#define TB6612_STBY ' + stby + '\n' +
+    '#define TB6612_PWMA ' + pwma + '\n' +
+    '#define TB6612_AIN1 ' + ain1 + '\n' +
+    '#define TB6612_AIN2 ' + ain2 + '\n' +
+    '#define TB6612_PWMB ' + pwmb + '\n' +
+    '#define TB6612_BIN1 ' + bin1 + '\n' +
+    '#define TB6612_BIN2 ' + bin2);
+  
+  generator.addSetup('tb6612_setup', 
+    'pinMode(TB6612_STBY, OUTPUT);\n' +
+    '  pinMode(TB6612_PWMA, OUTPUT);\n' +
+    '  pinMode(TB6612_AIN1, OUTPUT);\n' +
+    '  pinMode(TB6612_AIN2, OUTPUT);\n' +
+    '  pinMode(TB6612_PWMB, OUTPUT);\n' +
+    '  pinMode(TB6612_BIN1, OUTPUT);\n' +
+    '  pinMode(TB6612_BIN2, OUTPUT);\n' +
+    '  digitalWrite(TB6612_STBY, HIGH);');
+  
+  return '';
+};
+
+generator.forBlock['motor_tb6612_motor'] = function(block) {
+  var motor = block.getFieldValue('MOTOR');
+  var dir = block.getFieldValue('DIR');
+  var speed = generator.valueToCode(block, 'SPEED', generator.PRECEDENCE.ATOMIC) || '0';
+  
+  var in1 = motor === 'A' ? 'TB6612_AIN1' : 'TB6612_BIN1';
+  var in2 = motor === 'A' ? 'TB6612_AIN2' : 'TB6612_BIN2';
+  var pwm = motor === 'A' ? 'TB6612_PWMA' : 'TB6612_PWMB';
+  
+  var code = '';
+  if (dir === 'FORWARD') {
+    code += 'digitalWrite(' + in1 + ', HIGH);\n';
+    code += 'digitalWrite(' + in2 + ', LOW);\n';
+  } else if (dir === 'BACKWARD') {
+    code += 'digitalWrite(' + in1 + ', LOW);\n';
+    code += 'digitalWrite(' + in2 + ', HIGH);\n';
+  } else {
+    code += 'digitalWrite(' + in1 + ', LOW);\n';
+    code += 'digitalWrite(' + in2 + ', LOW);\n';
+  }
+  code += 'analogWrite(' + pwm + ', ' + speed + ');\n';
+  
+  return code;
+};

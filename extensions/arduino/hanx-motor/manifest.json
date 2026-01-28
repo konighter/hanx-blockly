@@ -27,7 +27,10 @@
         { "kind": "label", "text": "步进电机" },
         { "kind": "block", "type": "motor_stepper_setup" },
         { "kind": "block", "type": "motor_stepper_step" },
-        { "kind": "block", "type": "motor_stepper_speed" }
+        { "kind": "block", "type": "motor_stepper_speed" },
+        { "kind": "label", "text": "直流电机 (TB6612FNG)" },
+        { "kind": "block", "type": "motor_tb6612_setup" },
+        { "kind": "block", "type": "motor_tb6612_motor" }
       ]
     }
   ]

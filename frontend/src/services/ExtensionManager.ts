@@ -80,9 +80,30 @@ class ExtensionManager {
   }
 
   getToolboxItems(platform: string): any[] {
-    return this.extensions
+    const items = this.extensions
       .filter(ext => ext.metadata.platform === platform)
       .flatMap(ext => ext.metadata.toolbox || []);
+    
+    // Group categories by name
+    const groupedItems: any[] = [];
+    const categoryMap = new Map<string, any>();
+    
+    items.forEach(item => {
+      if (item.kind === 'category' && item.name) {
+        if (categoryMap.has(item.name)) {
+          const existing = categoryMap.get(item.name);
+          existing.contents = [...(existing.contents || []), ...(item.contents || [])];
+        } else {
+          const newItem = { ...item, contents: [...(item.contents || [])] };
+          categoryMap.set(item.name, newItem);
+          groupedItems.push(newItem);
+        }
+      } else {
+        groupedItems.push(item);
+      }
+    });
+    
+    return groupedItems;
   }
 
   getLibraryPaths(platform: string): string[] {

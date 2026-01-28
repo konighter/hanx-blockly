@@ -81,3 +81,14 @@ generator.forBlock['sensor_touch_detected'] = function(block) {
   generator.addSetup('touch_pin_' + pin, 'pinMode(' + pin + ', INPUT);');
   return ['(digitalRead(' + pin + ') == HIGH)', generator.PRECEDENCE.ORDER_EQUALITY];
 };
+
+generator.forBlock['sensor_joystick_read_axis'] = function(block) {
+  var pin = block.getFieldValue('PIN');
+  return ['analogRead(A' + pin + ')', generator.PRECEDENCE.ATOMIC];
+};
+
+generator.forBlock['sensor_joystick_read_button'] = function(block) {
+  var pin = block.getFieldValue('PIN');
+  generator.addSetup('joystick_btn_' + pin, 'pinMode(' + pin + ', INPUT_PULLUP);');
+  return ['(digitalRead(' + pin + ') == LOW)', generator.PRECEDENCE.ORDER_EQUALITY];
+};

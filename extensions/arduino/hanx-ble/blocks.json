@@ -1,0 +1,28 @@
+[
+  {
+    "type": "ble_init",
+    "message0": "初始化 BLE 名称: %1",
+    "args0": [
+      { "type": "input_value", "name": "NAME", "check": "String" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#3F51B5",
+    "tooltip": "初始化内置 BLE 并设置广播名称。"
+  },
+  {
+    "type": "ble_advertise",
+    "message0": "开始 BLE 广播",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#3F51B5",
+    "tooltip": "开始发送蓝牙广播，以便其他设备可以发现并连接。"
+  },
+  {
+    "type": "ble_is_connected",
+    "message0": "BLE 已连接中央设备?",
+    "output": "Boolean",
+    "colour": "#3F51B5",
+    "tooltip": "检查是否有中央设备（如手机）连接到本模块。"
+  }
+]

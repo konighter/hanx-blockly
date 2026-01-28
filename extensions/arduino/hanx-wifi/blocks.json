@@ -1,0 +1,38 @@
+[
+  {
+    "type": "wifi_init",
+    "message0": "连接 WiFi SSID: %1 密码: %2",
+    "args0": [
+      { "type": "input_value", "name": "SSID", "check": "String" },
+      { "type": "input_value", "name": "PWD", "check": "String" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#4CAF50",
+    "tooltip": "连接到指定的 WiFi 网络。"
+  },
+  {
+    "type": "wifi_is_connected",
+    "message0": "WiFi 已连接?",
+    "output": "Boolean",
+    "colour": "#4CAF50",
+    "tooltip": "检查网络连接状态。"
+  },
+  {
+    "type": "wifi_get_ip",
+    "message0": "获取本地 IP 地址",
+    "output": "String",
+    "colour": "#4CAF50",
+    "tooltip": "获取模块在局域网中的 IP 地址。"
+  },
+  {
+    "type": "wifi_http_get",
+    "message0": "HTTP GET 请求 URL: %1",
+    "args0": [
+      { "type": "input_value", "name": "URL", "check": "String" }
+    ],
+    "output": "String",
+    "colour": "#4CAF50",
+    "tooltip": "向指定 URL 发送 HTTP GET 请求并返回结果。"
+  }
+]

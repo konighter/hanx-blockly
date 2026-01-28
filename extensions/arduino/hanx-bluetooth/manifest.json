@@ -1,0 +1,26 @@
+{
+  "id": "hanx-bluetooth",
+  "name": "蓝牙通信",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["SoftwareSerial"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📡 通信模块",
+      "colour": "#00BCD4",
+      "contents": [
+        { "kind": "label", "text": "蓝牙通信 (HC-05/06 等)" },
+        { "kind": "block", "type": "bluetooth_init" },
+        { "kind": "block", "type": "bluetooth_available" },
+        { "kind": "block", "type": "bluetooth_read" },
+        { "kind": "block", "type": "bluetooth_read_string" },
+        { "kind": "block", "type": "bluetooth_print" },
+        { "kind": "block", "type": "bluetooth_println" }
+      ]
+    }
+  ]
+}

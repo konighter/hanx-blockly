@@ -28,7 +28,10 @@
         { "kind": "block", "type": "sensor_soil_moisture" },
         { "kind": "label", "text": "按钮/触摸" },
         { "kind": "block", "type": "sensor_button_pressed" },
-        { "kind": "block", "type": "sensor_touch_detected" }
+        { "kind": "block", "type": "sensor_touch_detected" },
+        { "kind": "label", "text": "摇杆控制器" },
+        { "kind": "block", "type": "sensor_joystick_read_axis" },
+        { "kind": "block", "type": "sensor_joystick_read_button" }
       ]
     }
   ]

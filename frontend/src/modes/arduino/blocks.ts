@@ -485,6 +485,175 @@ export const defineArduinoBlocks = () => {
       "args0": [{ "type": "input_value", "name": "TEXT" }],
       "output": "Number",
       "colour": "160"
+    },
+    // Math Map
+    {
+      "type": "math_map",
+      "message0": "将 %1 从 [%2, %3] 映射到 [%4, %5]",
+      "args0": [
+        { "type": "input_value", "name": "VALUE", "check": "Number" },
+        { "type": "input_value", "name": "FROMLOW", "check": "Number" },
+        { "type": "input_value", "name": "FROMHIGH", "check": "Number" },
+        { "type": "input_value", "name": "TOLOW", "check": "Number" },
+        { "type": "input_value", "name": "TOHIGH", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "将一个数值从一个范围映射到另一个范围。"
+    },
+    // Math Constrain
+    {
+      "type": "math_constrain",
+      "message0": "将 %1 限制在 [%2, %3] 之间",
+      "args0": [
+        { "type": "input_value", "name": "VALUE", "check": "Number" },
+        { "type": "input_value", "name": "LOW", "check": "Number" },
+        { "type": "input_value", "name": "HIGH", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "将一个数值限制在两个数值之间。"
+    },
+    // Math Random Seed
+    {
+      "type": "math_random_seed",
+      "message0": "设置随机数种子 %1",
+      "args0": [
+        { "type": "input_value", "name": "VALUE", "check": "Number" }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": "230",
+      "tooltip": "初始化随机数生成器。"
+    },
+    // Math Factorial
+    {
+      "type": "math_factorial",
+      "message0": "%1 的阶乘",
+      "args0": [
+        { "type": "input_value", "name": "NUM", "check": "Number" }
+      ],
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "计算一个数的阶乘 (n!)"
+    },
+    // Math GCD
+    {
+      "type": "math_gcd",
+      "message0": "%1 和 %2 的最大公约数",
+      "args0": [
+        { "type": "input_value", "name": "A", "check": "Number" },
+        { "type": "input_value", "name": "B", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "计算两个数的最大公约数"
+    },
+    // Math LCM
+    {
+      "type": "math_lcm",
+      "message0": "%1 和 %2 的最小公倍数",
+      "args0": [
+        { "type": "input_value", "name": "A", "check": "Number" },
+        { "type": "input_value", "name": "B", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "计算两个数的最小公倍数"
+    },
+    // Math Prime Check
+    {
+      "type": "math_prime_check",
+      "message0": "%1 是质数？",
+      "args0": [
+        { "type": "input_value", "name": "NUM", "check": "Number" }
+      ],
+      "output": "Boolean",
+      "colour": "230",
+      "tooltip": "检查一个数是否为质数"
+    },
+    // Array Math operations (Inspired by Python advanced math)
+    {
+      "type": "math_array_sum",
+      "message0": "数组 %1 的总和",
+      "args0": [
+        { "type": "input_value", "name": "LIST", "check": "Array" }
+      ],
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "计算数组的总和。"
+    },
+    {
+      "type": "math_array_mean",
+      "message0": "数组 %1 的平均值",
+      "args0": [
+        { "type": "input_value", "name": "LIST", "check": "Array" }
+      ],
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "计算数组的平均值。"
+    },
+    {
+      "type": "math_array_max",
+      "message0": "数组 %1 的最大值",
+      "args0": [
+        { "type": "input_value", "name": "LIST", "check": "Array" }
+      ],
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "获取数组的最大值。"
+    },
+    {
+      "type": "math_array_min",
+      "message0": "数组 %1 的最小值",
+      "args0": [
+        { "type": "input_value", "name": "LIST", "check": "Array" }
+      ],
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "获取数组的最小值。"
+    },
+    // Redefine math_arithmetic to include Modulo
+    {
+      "type": "math_arithmetic",
+      "message0": "%1 %2 %3",
+      "args0": [
+        { "type": "input_value", "name": "A", "check": "Number" },
+        { 
+          "type": "field_dropdown", 
+          "name": "OP", 
+          "options": [
+            ["+", "ADD"],
+            ["-", "MINUS"],
+            ["*", "MULTIPLY"],
+            ["/", "DIVIDE"],
+            ["%", "MODULO"],
+            ["^", "POWER"]
+          ] 
+        },
+        { "type": "input_value", "name": "B", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "对两个数进行数学计算。"
+    },
+    // Standard Modulo block
+    {
+      "type": "math_modulo",
+      "message0": "%1 ÷ %2 的余数",
+      "args0": [
+        { "type": "input_value", "name": "DIVIDEND", "check": "Number" },
+        { "type": "input_value", "name": "DIVISOR", "check": "Number" }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": "230",
+      "tooltip": "返回两个数相除后的余数。"
     }
   ]);
 };

@@ -147,5 +147,50 @@
     "nextStatement": null,
     "colour": "#795548",
     "tooltip": "设置步进电机转速"
+  },
+  {
+    "type": "motor_tb6612_setup",
+    "message0": "初始化 TB6612FNG STBY: %1 PWMA: %2 AIN1: %3 AIN2: %4 PWMB: %5 BIN1: %6 BIN2: %7",
+    "args0": [
+      { "type": "field_number", "name": "STBY", "value": 11, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "PWMA", "value": 5, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "AIN1", "value": 4, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "AIN2", "value": 3, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "PWMB", "value": 10, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "BIN1", "value": 9, "min": 0, "max": 53 },
+      { "type": "field_number", "name": "BIN2", "value": 8, "min": 0, "max": 53 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "初始化 TB6612FNG 电机驱动器引脚"
+  },
+  {
+    "type": "motor_tb6612_motor",
+    "message0": "TB6612FNG 电机 %1 %2 速度 %3",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "MOTOR",
+        "options": [
+          ["A", "A"],
+          ["B", "B"]
+        ]
+      },
+      {
+        "type": "field_dropdown",
+        "name": "DIR",
+        "options": [
+          ["正转", "FORWARD"],
+          ["反转", "BACKWARD"],
+          ["停止", "STOP"]
+        ]
+      },
+      { "type": "input_value", "name": "SPEED", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#795548",
+    "tooltip": "控制 TB6612FNG 电机方向和速度 (0-255)"
   }
 ]

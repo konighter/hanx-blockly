@@ -1,0 +1,24 @@
+{
+  "id": "hanx-wifi",
+  "name": "WiFi通信",
+  "platform": "arduino",
+  "author": "HanX Studio",
+  "version": "1.0.0",
+  "dependencies": {
+    "arduino": ["WiFiS3"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "📡 通信模块",
+      "colour": "#4CAF50",
+      "contents": [
+        { "kind": "label", "text": "WiFi 通信 (UNO R4 等)" },
+        { "kind": "block", "type": "wifi_init" },
+        { "kind": "block", "type": "wifi_is_connected" },
+        { "kind": "block", "type": "wifi_get_ip" },
+        { "kind": "block", "type": "wifi_http_get" }
+      ]
+    }
+  ]
+}

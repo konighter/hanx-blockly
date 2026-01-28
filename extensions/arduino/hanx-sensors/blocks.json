@@ -101,5 +101,33 @@
     "output": "Boolean",
     "colour": "#FF5722",
     "tooltip": "检测触摸传感器是否被触发"
+  },
+  {
+    "type": "sensor_joystick_read_axis",
+    "message0": "摇杆 %1 引脚 %2",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "AXIS",
+        "options": [
+          ["X轴", "X"],
+          ["Y轴", "Y"]
+        ]
+      },
+      { "type": "field_number", "name": "PIN", "value": 0, "min": 0, "max": 15 }
+    ],
+    "output": "Number",
+    "colour": "#FF5722",
+    "tooltip": "读取摇杆的 X 或 Y 轴模拟值 (0-1023)"
+  },
+  {
+    "type": "sensor_joystick_read_button",
+    "message0": "摇杆按钮被按下 引脚 %1",
+    "args0": [
+      { "type": "field_number", "name": "PIN", "value": 2, "min": 0, "max": 53 }
+    ],
+    "output": "Boolean",
+    "colour": "#FF5722",
+    "tooltip": "检测摇杆按钮是否被按下"
   }
 ]

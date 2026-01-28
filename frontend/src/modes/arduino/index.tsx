@@ -79,7 +79,33 @@ export const config: IModeConfig = {
       ]},
       { kind: 'category', name: '数学', colour: '230', contents: [
         { kind: 'block', type: 'math_number', gap: 12 }, 
-        { kind: 'block', type: 'math_arithmetic', gap: 12 }
+        { kind: 'block', type: 'math_arithmetic', gap: 12 },
+        { kind: 'block', type: 'math_modulo', gap: 12 },
+        { kind: 'block', type: 'math_single', gap: 12 },
+        { kind: 'block', type: 'math_trig', gap: 12 },
+        { kind: 'block', type: 'math_constant', gap: 12 },
+        { kind: 'block', type: 'math_round', gap: 12 },
+        { kind: 'block', type: 'math_random_int', gap: 12, inputs: { FROM: { shadow: { type: 'math_number', fields: { NUM: 1 } } }, TO: { shadow: { type: 'math_number', fields: { NUM: 100 } } } } },
+        { kind: 'block', type: 'math_random_seed', gap: 12 },
+        { kind: 'sep', gap: 24 },
+        { kind: 'block', type: 'math_map', gap: 12 },
+        { kind: 'block', type: 'math_constrain', gap: 12 },
+        { kind: 'sep', gap: 24 },
+        {kind: 'block', type: 'math_factorial', gap: 12 },
+        {kind: 'block', type: 'math_gcd', gap: 12 },
+        {kind: 'block', type: 'math_lcm', gap: 12 },
+        {kind: 'block', type: 'math_prime_check', gap: 12 },
+        {kind: 'sep', gap: 24 },
+        {kind: 'block', type: 'math_array_sum', gap: 12 },
+        {kind: 'block', type: 'math_array_mean', gap: 12 },
+        {kind: 'block', type: 'math_array_max', gap: 12 },
+        {kind: 'block', type: 'math_array_min', gap: 12 }
+      ] },
+      { kind: 'category', name: '列表', colour: '260', contents: [
+        { kind: 'block', type: 'lists_create_with' },
+        { kind: 'block', type: 'lists_getIndex' },
+        { kind: 'block', type: 'lists_setIndex' },
+        { kind: 'block', type: 'lists_length' }
       ] },
       { kind: 'category', name: '逻辑', colour: '210', contents: [
         { kind: 'block', type: 'logic_compare', gap: 12 }, 

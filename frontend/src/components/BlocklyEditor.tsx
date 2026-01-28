@@ -3,6 +3,9 @@ import * as Blockly from 'blockly';
 import 'blockly/blocks';
 import * as Zh from 'blockly/msg/zh-hans';
 import { ask, message } from '@tauri-apps/plugin-dialog';
+import { Copy, Check } from 'lucide-react';
+import CodeMirror from '@uiw/react-codemirror';
+import { cpp } from '@codemirror/lang-cpp';
 import type { IModeConfig } from '../modes/types';
 
 import { extensionManager } from '../services/ExtensionManager';
@@ -48,6 +51,7 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
     const isResizingRight = useRef(false);
     const startResizingX = useRef(0);
     const startWidth = useRef(350);
+    const [isCopied, setIsCopied] = useState(false);
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -231,6 +235,16 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
       callback(null);
     };
 
+    const handleCopyCode = async () => {
+      try {
+        await navigator.clipboard.writeText(generatedCode);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy code:', err);
+      }
+    };
+
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', position: 'relative' }}>
         <div style={{ flex: 1, position: 'relative' }}>
@@ -286,23 +300,48 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
             alignItems: 'center',
             backgroundColor: 'white'
           }}>
-            <span>生成的代码</span>
-            <span style={{ fontSize: '10px', padding: '2px 6px', background: '#e2e8f0', borderRadius: '4px' }}>
-              {modeConfig.label}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>代码区</span>
+              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#e2e8f0', borderRadius: '4px' }}>
+                {modeConfig.label}
+              </span>
+            </div>
+            <button
+              onClick={handleCopyCode}
+              title="复制代码"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'white',
+                cursor: 'pointer',
+                fontSize: '12px',
+                color: isCopied ? '#10b981' : 'var(--text-main)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isCopied ? <Check size={14} /> : <Copy size={14} />}
+              {isCopied ? '已复制' : '复制'}
+            </button>
           </div>
-          <pre style={{ 
-            margin: 0, 
-            padding: '16px', 
-            flex: 1, 
-            overflow: 'auto', 
-            fontFamily: "'Fira Code', monospace", 
-            fontSize: '13px',
-            lineHeight: '1.6',
-            color: '#334155'
-          }}>
-            {generatedCode || '# 等待编写代码...'}
-          </pre>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <CodeMirror
+              value={generatedCode || '// 等待编写代码...'}
+              height="100%"
+              theme="light"
+              extensions={[cpp()]}
+              readOnly={true}
+              basicSetup={{
+                lineNumbers: true,
+                foldGutter: true,
+                highlightActiveLine: false,
+              }}
+              style={{ fontSize: '13px', height: '100%' }}
+            />
+          </div>
         </div>
 
         {/* Custom Prompt Modal */}

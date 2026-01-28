@@ -16,7 +16,14 @@
     "message0": "WiFi 已连接?",
     "output": "Boolean",
     "colour": "#4CAF50",
-    "tooltip": "检查网络连接状态。"
+    "tooltip": "检查网络是否已连接成功。"
+  },
+  {
+    "type": "wifi_status",
+    "message0": "WiFi 连接状态",
+    "output": "Number",
+    "colour": "#4CAF50",
+    "tooltip": "获取 WiFi 的详细连接状态代码 (3 = 已连接, 4 = 连接失败, 6 = 断开连接)。"
   },
   {
     "type": "wifi_get_ip",

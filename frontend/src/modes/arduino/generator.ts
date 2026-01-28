@@ -93,7 +93,7 @@ arduinoGenerator.finish = function(code: string) {
     }
   }
 
-  const loopCode = `void loop() {\n${loops.join('\n')}${loops.length ? '\n' : ''}${code.split('\n').filter((l: string) => l).map((line: string) => '  ' + line).join('\n')}\n}\n`;
+  const loopCode = `void loop() {\n${loops.join('\n')}${loops.length && code.trim() ? '\n' : ''}${code.split('\n').filter((l: string) => l).map((line: string) => '  ' + line).join('\n')}\n}\n`;
   
   return allDefs + setupCode + loopCode;
 };
@@ -229,7 +229,7 @@ export const initArduinoGenerator = () => {
     const loop = arduinoGenerator.statementToCode(block, 'LOOP');
     
     if (setup) {
-      arduinoGenerator.addSetup('manual_setup', setup.trim());
+      arduinoGenerator.addSetup('m_setup', setup.trim());
     }
     // Loop code from this block will be returned and wrapped by finish()
     return loop;
@@ -559,7 +559,7 @@ export const initArduinoGenerator = () => {
   // @ts-ignore
   arduinoGenerator.forBlock['arduino_serial_print'] = function(block: Blockly.Block) {
     const content = arduinoGenerator.valueToCode(block, 'CONTENT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
-    arduinoGenerator.addSetup('serial_begin', 'Serial.begin(9600);');
+    arduinoGenerator.addSetup('00_serial_begin', 'Serial.begin(9600);');
     return `Serial.print(${content});\n`;
   };
 
@@ -567,21 +567,21 @@ export const initArduinoGenerator = () => {
   // @ts-ignore
   arduinoGenerator.forBlock['arduino_serial_println'] = function(block: Blockly.Block) {
     const content = arduinoGenerator.valueToCode(block, 'CONTENT', arduinoGenerator.PRECEDENCE.ATOMIC) || '""';
-    arduinoGenerator.addSetup('serial_begin', 'Serial.begin(9600);');
+    arduinoGenerator.addSetup('00_serial_begin', 'Serial.begin(9600);');
     return `Serial.println(${content});\n`;
   };
 
   // 36. Serial Available
   // @ts-ignore
   arduinoGenerator.forBlock['arduino_serial_available'] = function(_block: Blockly.Block) {
-    arduinoGenerator.addSetup('serial_begin', 'Serial.begin(9600);');
+    arduinoGenerator.addSetup('00_serial_begin', 'Serial.begin(9600);');
     return ['Serial.available() > 0', arduinoGenerator.PRECEDENCE.ORDER_RELATIONAL];
   };
 
   // 37. Serial Read
   // @ts-ignore
   arduinoGenerator.forBlock['arduino_serial_read'] = function(_block: Blockly.Block) {
-    arduinoGenerator.addSetup('serial_begin', 'Serial.begin(9600);');
+    arduinoGenerator.addSetup('00_serial_begin', 'Serial.begin(9600);');
     return ['Serial.read()', arduinoGenerator.PRECEDENCE.ATOMIC];
   };
 

@@ -1,13 +1,14 @@
-// HanX WiFi Extension - Arduino Code Generator
-
 generator.forBlock['wifi_init'] = function(block) {
   var ssid = generator.valueToCode(block, 'SSID', generator.PRECEDENCE.ATOMIC) || '""';
   var pwd = generator.valueToCode(block, 'PWD', generator.PRECEDENCE.ATOMIC) || '""';
   
   generator.addDefinition('include_wifi', '#include <WiFiS3.h>');
-  generator.addSetup('wifi_begin', 'WiFi.begin(' + ssid + ', ' + pwd + ');\n  while (WiFi.status() != WL_CONNECTED) {\n    delay(500);\n  }');
   
-  return '';
+  return 'WiFi.begin(' + ssid + ', ' + pwd + ');\n';
+};
+
+generator.forBlock['wifi_status'] = function(block) {
+  return ['WiFi.status()', generator.PRECEDENCE.ATOMIC];
 };
 
 generator.forBlock['wifi_is_connected'] = function(block) {

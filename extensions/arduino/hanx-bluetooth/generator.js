@@ -7,9 +7,8 @@ generator.forBlock['bluetooth_init'] = function(block) {
   
   generator.addDefinition('include_software_serial', '#include <SoftwareSerial.h>');
   generator.addDefinition('bluetooth_serial', 'SoftwareSerial BTSerial(' + rx + ', ' + tx + ');');
-  generator.addSetup('bluetooth_begin', 'BTSerial.begin(' + baud + ');');
   
-  return '';
+  return 'BTSerial.begin(' + baud + ');\n';
 };
 
 generator.forBlock['bluetooth_available'] = function(block) {

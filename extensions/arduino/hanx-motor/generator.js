@@ -9,9 +9,8 @@ generator.forBlock['motor_servo_attach'] = function(block) {
   
   generator.addDefinition('include_servo', '#include <Servo.h>');
   generator.addDefinition('servo_' + name, 'Servo ' + name + ';');
-  generator.addSetup('servo_attach_' + name, name + '.attach(' + pin + ');');
   
-  return '';
+  return name + '.attach(' + pin + ');\n';
 };
 
 generator.forBlock['motor_servo_write'] = function(block) {
@@ -42,12 +41,9 @@ generator.forBlock['motor_dc_setup'] = function(block) {
   generator.addDefinition('motor_' + name + '_in2', '#define ' + name.toUpperCase() + '_IN2 ' + in2);
   generator.addDefinition('motor_' + name + '_ena', '#define ' + name.toUpperCase() + '_ENA ' + ena);
   
-  generator.addSetup('motor_' + name + '_pins', 
-    'pinMode(' + name.toUpperCase() + '_IN1, OUTPUT);\n' +
-    '  pinMode(' + name.toUpperCase() + '_IN2, OUTPUT);\n' +
-    '  pinMode(' + name.toUpperCase() + '_ENA, OUTPUT);');
-  
-  return '';
+  return 'pinMode(' + name.toUpperCase() + '_IN1, OUTPUT);\n' +
+         'pinMode(' + name.toUpperCase() + '_IN2, OUTPUT);\n' +
+         'pinMode(' + name.toUpperCase() + '_ENA, OUTPUT);\n';
 };
 
 generator.forBlock['motor_dc_forward'] = function(block) {
@@ -126,17 +122,14 @@ generator.forBlock['motor_tb6612_setup'] = function(block) {
     '#define TB6612_BIN1 ' + bin1 + '\n' +
     '#define TB6612_BIN2 ' + bin2);
   
-  generator.addSetup('tb6612_setup', 
-    'pinMode(TB6612_STBY, OUTPUT);\n' +
-    '  pinMode(TB6612_PWMA, OUTPUT);\n' +
-    '  pinMode(TB6612_AIN1, OUTPUT);\n' +
-    '  pinMode(TB6612_AIN2, OUTPUT);\n' +
-    '  pinMode(TB6612_PWMB, OUTPUT);\n' +
-    '  pinMode(TB6612_BIN1, OUTPUT);\n' +
-    '  pinMode(TB6612_BIN2, OUTPUT);\n' +
-    '  digitalWrite(TB6612_STBY, HIGH);');
-  
-  return '';
+  return 'pinMode(TB6612_STBY, OUTPUT);\n' +
+         'pinMode(TB6612_PWMA, OUTPUT);\n' +
+         'pinMode(TB6612_AIN1, OUTPUT);\n' +
+         'pinMode(TB6612_AIN2, OUTPUT);\n' +
+         'pinMode(TB6612_PWMB, OUTPUT);\n' +
+         'pinMode(TB6612_BIN1, OUTPUT);\n' +
+         'pinMode(TB6612_BIN2, OUTPUT);\n' +
+         'digitalWrite(TB6612_STBY, HIGH);\n';
 };
 
 generator.forBlock['motor_tb6612_motor'] = function(block) {

@@ -16,6 +16,7 @@
         { "kind": "label", "text": "WiFi 通信 (UNO R4 等)" },
         { "kind": "block", "type": "wifi_init" },
         { "kind": "block", "type": "wifi_is_connected" },
+        { "kind": "block", "type": "wifi_status" },
         { "kind": "block", "type": "wifi_get_ip" },
         { "kind": "block", "type": "wifi_http_get" }
       ]

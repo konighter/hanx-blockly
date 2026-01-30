@@ -3,10 +3,13 @@ import * as Blockly from 'blockly';
 import 'blockly/blocks';
 import * as Zh from 'blockly/msg/zh-hans';
 import { ask, message } from '@tauri-apps/plugin-dialog';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Sparkles, Code2 } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { cpp } from '@codemirror/lang-cpp';
 import type { IModeConfig } from '../modes/types';
+import AiGeneratorChat from './AiGeneratorChat';
+import SettingsDrawer from './SettingsDrawer';
+import { Settings } from 'lucide-react';
 
 import { extensionManager } from '../services/ExtensionManager';
 
@@ -52,6 +55,8 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
     const startResizingX = useRef(0);
     const startWidth = useRef(350);
     const [isCopied, setIsCopied] = useState(false);
+    const [activeTab, setActiveTab] = useState<'code' | 'ai'>('code');
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -264,7 +269,7 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
         <div className="preview-panel" style={{ 
           width: isCodeOpen ? `${rightPanelWidth}px` : '0px', 
           display: isCodeOpen ? 'flex' : 'none', 
-          flexDirection: 'column',
+          flexDirection: 'row',
           borderLeft: '1px solid var(--border-color)',
           backgroundColor: '#f8fafc',
           position: 'relative',
@@ -290,59 +295,165 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
                e.preventDefault();
              }}
           />
-          <div style={{
-            padding: '12px 16px',
-            borderBottom: '1px solid var(--border-color)',
-            fontWeight: '600',
-            color: 'var(--text-muted)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: 'white'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>代码区</span>
-              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#e2e8f0', borderRadius: '4px' }}>
-                {modeConfig.label}
-              </span>
-            </div>
-            <button
-              onClick={handleCopyCode}
-              title="复制代码"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'white',
-                cursor: 'pointer',
-                fontSize: '12px',
-                color: isCopied ? '#10b981' : 'var(--text-main)',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {isCopied ? <Check size={14} /> : <Copy size={14} />}
-              {isCopied ? '已复制' : '复制'}
-            </button>
+          {/* Content Area */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+             {activeTab === 'code' ? (
+                <>
+                  <div style={{
+                    padding: '8px 12px',
+                    borderBottom: '1px solid var(--border-color)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: 'white'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>代码预览</span>
+                    </div>
+                    <button
+                      onClick={handleCopyCode}
+                      title="复制代码"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: 'white',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        color: isCopied ? '#10b981' : 'var(--text-main)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                      {isCopied ? '已复制' : '复制'}
+                    </button>
+                  </div>
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <CodeMirror
+                      value={generatedCode || '// 等待编写代码...'}
+                      height="100%"
+                      theme="light"
+                      extensions={[cpp()]}
+                      readOnly={true}
+                      basicSetup={{
+                        lineNumbers: true,
+                        foldGutter: true,
+                        highlightActiveLine: false,
+                      }}
+                      style={{ fontSize: '13px', height: '100%' }}
+                    />
+                  </div>
+                </>
+             ) : (
+                <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'white', fontWeight: 600, color: '#9333ea', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={16} />
+                    AI 智能助手
+                  </div>
+                  <div style={{ flex: 1, padding: '0', overflow: 'hidden' }}>
+                    <AiGeneratorChat workspace={workspaceRef.current} />
+                  </div>
+                </div>
+             )}
           </div>
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <CodeMirror
-              value={generatedCode || '// 等待编写代码...'}
-              height="100%"
-              theme="light"
-              extensions={[cpp()]}
-              readOnly={true}
-              basicSetup={{
-                lineNumbers: true,
-                foldGutter: true,
-                highlightActiveLine: false,
-              }}
-              style={{ fontSize: '13px', height: '100%' }}
-            />
+
+          {/* Right Vertical Tabs */}
+          <div style={{ 
+            width: '48px', 
+            borderLeft: '1px solid var(--border-color)', 
+            backgroundColor: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingTop: '12px',
+            gap: '8px'
+          }}>
+             <button
+                onClick={() => setActiveTab('code')}
+                title="代码预览"
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: activeTab === 'code' ? 'white' : '#64748b',
+                  background: activeTab === 'code' ? 'linear-gradient(135deg, #0d9488, #0f766e)' : 'transparent',
+                  border: activeTab === 'code' ? 'none' : '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: activeTab === 'code' ? '0 4px 6px -1px rgba(13, 148, 136, 0.3)' : 'none',
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'code') e.currentTarget.style.backgroundColor = '#f1f5f9';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'code') e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+             >
+               <Code2 size={22} strokeWidth={activeTab === 'code' ? 2.5 : 2} />
+             </button>
+             <button
+                onClick={() => setActiveTab('ai')}
+                title="AI 助手"
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: activeTab === 'ai' ? 'white' : '#64748b',
+                  background: activeTab === 'ai' ? 'linear-gradient(135deg, #7c3aed, #db2777)' : 'transparent',
+                  border: activeTab === 'ai' ? 'none' : '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: activeTab === 'ai' ? '0 4px 6px -1px rgba(124, 58, 237, 0.3)' : 'none',
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'ai') e.currentTarget.style.backgroundColor = '#f1f5f9';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'ai') e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+             >
+               <Sparkles size={22} strokeWidth={activeTab === 'ai' ? 2.5 : 2} />
+             </button>
+             
+             <div style={{ width: '32px', height: '1px', backgroundColor: '#e2e8f0', margin: '4px 0' }} />
+
+             <button
+                onClick={() => setIsSettingsOpen(true)}
+                title="设置"
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#64748b',
+                  background: 'transparent',
+                  border: '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+             >
+               <Settings size={22} strokeWidth={2} />
+             </button>
           </div>
         </div>
+
+        <SettingsDrawer 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+        />
 
         {/* Custom Prompt Modal */}
         {promptState.isOpen && (
@@ -353,6 +464,7 @@ const BlocklyEditor = forwardRef<BlocklyEditorRef, BlocklyEditorProps>(
             onCancel={handlePromptCancel} 
           />
         )}
+
       </div>
     );
   }

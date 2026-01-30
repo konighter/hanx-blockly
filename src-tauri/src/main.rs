@@ -99,7 +99,8 @@ fn main() {
       cmd::sys::extensions::delete_extension,
       cmd::sys::extensions::install_extension_dependencies,
       cmd::sys::extensions::refresh_extensions,
-      cmd::sys::env_manager::ensure_environment
+      cmd::sys::env_manager::ensure_environment,
+      cmd::ai::generate_blocks
     ])
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_fs::init())

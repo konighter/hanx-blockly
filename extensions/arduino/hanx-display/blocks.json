@@ -1,8 +1,16 @@
 [
   {
     "type": "oled_init",
-    "message0": "初始化 OLED 屏幕 宽度 %1 高度 %2 地址 %3",
+    "message0": "初始化 OLED 屏幕 驱动 %1 宽度 %2 高度 %3 地址 %4",
     "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "DRIVER",
+        "options": [
+          ["SSD1306", "SSD1306"],
+          ["SH1106", "SH1106"]
+        ]
+      },
       { "type": "field_number", "name": "WIDTH", "value": 128, "min": 64, "max": 256 },
       { "type": "field_number", "name": "HEIGHT", "value": 64, "min": 32, "max": 128 },
       { "type": "field_input", "name": "ADDR", "text": "0x3C" }
@@ -10,27 +18,27 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "初始化 SSD1306 OLED 显示屏"
+    "tooltip": "初始化 OLED 显示屏 (基于 U8g2 库)"
   },
   {
     "type": "oled_clear",
-    "message0": "清空屏幕",
+    "message0": "OLED 清空缓冲区",
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "清空 OLED 显示内容"
+    "tooltip": "清空 OLED 显存缓冲区"
   },
   {
     "type": "oled_display",
-    "message0": "刷新显示",
+    "message0": "OLED 刷新显示",
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "将缓冲区内容显示到屏幕"
+    "tooltip": "将缓冲区内容发送到物理屏幕"
   },
   {
     "type": "oled_set_cursor",
-    "message0": "设置光标位置 x: %1 y: %2",
+    "message0": "OLED 设置位置 x: %1 y: %2",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" }
@@ -39,11 +47,33 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "设置文字光标位置"
+    "tooltip": "设置 OLED 文字光标位置"
+  },
+  {
+    "type": "oled_print",
+    "message0": "OLED 显示内容 %1",
+    "args0": [
+      { "type": "input_value", "name": "TEXT" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#00BCD4",
+    "tooltip": "在 OLED 当前位置显示内容"
+  },
+  {
+    "type": "oled_println",
+    "message0": "OLED 显示内容并换行 %1",
+    "args0": [
+      { "type": "input_value", "name": "TEXT" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#00BCD4",
+    "tooltip": "在 OLED 当前位置显示内容并换行"
   },
   {
     "type": "oled_set_textsize",
-    "message0": "设置字体大小 %1",
+    "message0": "OLED 设置字体大小 %1",
     "args0": [
       {
         "type": "field_dropdown",
@@ -59,11 +89,11 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "设置文字大小"
+    "tooltip": "设置 OLED 文字大小"
   },
   {
     "type": "oled_set_textcolor",
-    "message0": "设置文字颜色 %1",
+    "message0": "OLED 设置文字颜色 %1",
     "args0": [
       {
         "type": "field_dropdown",
@@ -77,33 +107,11 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "设置文字颜色"
-  },
-  {
-    "type": "oled_print",
-    "message0": "显示文字 %1",
-    "args0": [
-      { "type": "input_value", "name": "TEXT" }
-    ],
-    "previousStatement": null,
-    "nextStatement": null,
-    "colour": "#00BCD4",
-    "tooltip": "在当前位置显示文字"
-  },
-  {
-    "type": "oled_println",
-    "message0": "显示文字并换行 %1",
-    "args0": [
-      { "type": "input_value", "name": "TEXT" }
-    ],
-    "previousStatement": null,
-    "nextStatement": null,
-    "colour": "#00BCD4",
-    "tooltip": "在当前位置显示文字并换行"
+    "tooltip": "设置 OLED 文字颜色"
   },
   {
     "type": "oled_draw_pixel",
-    "message0": "画点 x: %1 y: %2 颜色 %3",
+    "message0": "OLED 画点 x: %1 y: %2 颜色 %3",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" },
@@ -124,7 +132,7 @@
   },
   {
     "type": "oled_draw_line",
-    "message0": "画线 从 (%1, %2) 到 (%3, %4)",
+    "message0": "OLED 画线 从 (%1, %2) 到 (%3, %4)",
     "args0": [
       { "type": "input_value", "name": "X1", "check": "Number" },
       { "type": "input_value", "name": "Y1", "check": "Number" },
@@ -139,7 +147,7 @@
   },
   {
     "type": "oled_draw_rect",
-    "message0": "画矩形 x: %1 y: %2 宽: %3 高: %4",
+    "message0": "OLED 画矩形 x: %1 y: %2 宽: %3 高: %4",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" },
@@ -154,7 +162,7 @@
   },
   {
     "type": "oled_fill_rect",
-    "message0": "填充矩形 x: %1 y: %2 宽: %3 高: %4",
+    "message0": "OLED 填充矩形 x: %1 y: %2 宽: %3 高: %4",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" },
@@ -165,11 +173,11 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "画一个实心矩形"
+    "tooltip": "填充一个实心矩形"
   },
   {
     "type": "oled_draw_circle",
-    "message0": "画圆 圆心 (%1, %2) 半径 %3",
+    "message0": "OLED 画圆 圆心 (%1, %2) 半径 %3",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" },
@@ -183,7 +191,7 @@
   },
   {
     "type": "oled_fill_circle",
-    "message0": "填充圆 圆心 (%1, %2) 半径 %3",
+    "message0": "OLED 填充圆 圆心 (%1, %2) 半径 %3",
     "args0": [
       { "type": "input_value", "name": "X", "check": "Number" },
       { "type": "input_value", "name": "Y", "check": "Number" },
@@ -193,6 +201,209 @@
     "previousStatement": null,
     "nextStatement": null,
     "colour": "#00BCD4",
-    "tooltip": "画一个实心圆"
+    "tooltip": "填充一个实心圆"
+  },
+  {
+    "type": "tft_init",
+    "message0": "初始化 TFT 圆屏 (GC9A01) CS %1 DC %2 RST %3",
+    "args0": [
+      { "type": "field_number", "name": "CS", "value": 10 },
+      { "type": "field_number", "name": "DC", "value": 9 },
+      { "type": "field_number", "name": "RST", "value": 8 }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "初始化 1.28寸 GC9A01 TFT 屏幕 (使用硬件 SPI)"
+  },
+  {
+    "type": "tft_fill_screen",
+    "message0": "TFT 填充颜色 %1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["黑色", "GC9A01A_BLACK"],
+          ["白色", "GC9A01A_WHITE"],
+          ["红色", "GC9A01A_RED"],
+          ["绿色", "GC9A01A_GREEN"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["黄色", "GC9A01A_YELLOW"],
+          ["青色", "GC9A01A_CYAN"],
+          ["品红", "GC9A01A_MAGENTA"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "用指定颜色填充整个 TFT 屏幕"
+  },
+  {
+    "type": "tft_draw_text",
+    "message0": "TFT 显示文字 %1 x: %2 y: %3 大小 %4 颜色 %5",
+    "args0": [
+      { "type": "input_value", "name": "TEXT" },
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      { "type": "field_number", "name": "SIZE", "value": 1, "min": 1, "max": 10 },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["黑色", "GC9A01A_BLACK"],
+          ["红色", "GC9A01A_RED"],
+          ["绿色", "GC9A01A_GREEN"],
+          ["蓝色", "GC9A01A_BLUE"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "在指定位置显示文字"
+  },
+  {
+    "type": "tft_draw_pixel",
+    "message0": "TFT 画点 x: %1 y: %2 颜色 %3",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "画一个像素点"
+  },
+  {
+    "type": "tft_draw_line",
+    "message0": "TFT 画线 从 (%1, %2) 到 (%3, %4) 颜色 %5",
+    "args0": [
+      { "type": "input_value", "name": "X1", "check": "Number" },
+      { "type": "input_value", "name": "Y1", "check": "Number" },
+      { "type": "input_value", "name": "X2", "check": "Number" },
+      { "type": "input_value", "name": "Y2", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "画一条直线"
+  },
+  {
+    "type": "tft_draw_rect",
+    "message0": "TFT 画矩形 x: %1 y: %2 宽: %3 高: %4 颜色 %5",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      { "type": "input_value", "name": "W", "check": "Number" },
+      { "type": "input_value", "name": "H", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "画一个空心矩形"
+  },
+  {
+    "type": "tft_fill_rect",
+    "message0": "TFT 填充矩形 x: %1 y: %2 宽: %3 高: %4 颜色 %5",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      { "type": "input_value", "name": "W", "check": "Number" },
+      { "type": "input_value", "name": "H", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "填充一个实心矩形"
+  },
+  {
+    "type": "tft_draw_circle",
+    "message0": "TFT 画圆 圆心 (%1, %2) 半径 %3 颜色 %4",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      { "type": "input_value", "name": "R", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "画一个空心圆"
+  },
+  {
+    "type": "tft_fill_circle",
+    "message0": "TFT 填充圆 圆心 (%1, %2) 半径 %3 颜色 %4",
+    "args0": [
+      { "type": "input_value", "name": "X", "check": "Number" },
+      { "type": "input_value", "name": "Y", "check": "Number" },
+      { "type": "input_value", "name": "R", "check": "Number" },
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["白色", "GC9A01A_WHITE"],
+          ["蓝色", "GC9A01A_BLUE"],
+          ["红色", "GC9A01A_RED"]
+        ]
+      }
+    ],
+    "inputsInline": true,
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "#FF9800",
+    "tooltip": "填充一个实心圆"
   }
 ]

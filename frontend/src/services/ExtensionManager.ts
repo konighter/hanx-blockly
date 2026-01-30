@@ -133,6 +133,16 @@ class ExtensionManager {
     await this.loadExtensions();
     return result;
   }
+
+  getAllBlockDefinitions(): any[] {
+    const allBlocks: any[] = [];
+    this.extensions.forEach(ext => {
+      if (ext.blocks && Array.isArray(ext.blocks)) {
+        allBlocks.push(...ext.blocks);
+      }
+    });
+    return allBlocks;
+  }
 }
 
 export const extensionManager = new ExtensionManager();

@@ -1,21 +1,21 @@
 {
   "id": "hanx-display",
-  "name": "OLED 显示屏",
+  "name": "显示屏",
   "platform": "arduino",
   "author": "HanX Studio",
   "version": "1.0.0",
   "dependencies": {
-    "arduino": ["Adafruit SSD1306", "Adafruit GFX Library"]
+    "arduino": ["U8g2", "Adafruit GC9A01A", "Adafruit GFX Library"]
   },
   "toolbox": [
     {
       "kind": "category",
-      "name": "📺 OLED 显示屏",
+      "name": "⬛ OLED 屏幕",
       "colour": "#00BCD4",
       "contents": [
-        { "kind": "label", "text": "初始化" },
+        { "kind": "label", "text": "U8g2 驱动" },
         { "kind": "block", "type": "oled_init" },
-        { "kind": "label", "text": "显示控制" },
+        { "kind": "label", "text": "控制" },
         { "kind": "block", "type": "oled_clear" },
         { "kind": "block", "type": "oled_display" },
         { "kind": "label", "text": "文本" },
@@ -31,6 +31,25 @@
         { "kind": "block", "type": "oled_fill_rect" },
         { "kind": "block", "type": "oled_draw_circle" },
         { "kind": "block", "type": "oled_fill_circle" }
+      ]
+    },
+    {
+      "kind": "category",
+      "name": "🟠 TFT 屏幕",
+      "colour": "#FF9800",
+      "contents": [
+        { "kind": "label", "text": "GC9A01 SPI" },
+        { "kind": "block", "type": "tft_init" },
+        { "kind": "block", "type": "tft_fill_screen" },
+        { "kind": "label", "text": "文本" },
+        { "kind": "block", "type": "tft_draw_text" },
+        { "kind": "label", "text": "图形" },
+        { "kind": "block", "type": "tft_draw_pixel" },
+        { "kind": "block", "type": "tft_draw_line" },
+        { "kind": "block", "type": "tft_draw_rect" },
+        { "kind": "block", "type": "tft_fill_rect" },
+        { "kind": "block", "type": "tft_draw_circle" },
+        { "kind": "block", "type": "tft_fill_circle" }
       ]
     }
   ]

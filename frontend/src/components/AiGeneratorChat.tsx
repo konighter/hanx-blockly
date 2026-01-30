@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import * as Blockly from 'blockly';
 import { extensionManager } from '../services/ExtensionManager';
 import type { AiSettings } from './SettingsDrawer';
+import { ARDUINO_BLOCK_DEFINITIONS } from '../modes/arduino/blocks';
 
 interface AiGeneratorChatProps {
   workspace: Blockly.WorkspaceSvg | null;
@@ -33,7 +34,9 @@ const AiGeneratorChat: React.FC<AiGeneratorChatProps> = ({ workspace }) => {
     const saved = localStorage.getItem('ai_settings');
     if (saved) {
       try {
-        setSettings(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        console.log("[AI] Loaded settings:", parsed);
+        setSettings(parsed);
       } catch (e) {
         console.error("Failed to parse settings", e);
       }
@@ -73,18 +76,23 @@ const AiGeneratorChat: React.FC<AiGeneratorChatProps> = ({ workspace }) => {
     setIsLoading(true);
 
     try {
-      const allBlocks = extensionManager.getAllBlockDefinitions();
+      const baseBlocks = ARDUINO_BLOCK_DEFINITIONS;
+      const extensionBlocks = extensionManager.getAllBlockDefinitions();
+      const allBlocks = [...baseBlocks, ...extensionBlocks];
+      
       const context = JSON.stringify(allBlocks, null, 2);
 
-      const response = await invoke<{ result: string }>('generate_blocks', {
+      const args = {
         prompt: textToProcess,
         context,
         apiKey: settings?.apiKey,
         apiUrl: settings?.apiUrl,
         model: settings?.model
-      });
+      };
+      console.log("[AI] Invoking generate_blocks with:", args);
 
-      let xmlText = response.result;
+      const response = await invoke<string>('generate_blocks', args);
+      let xmlText = response;
       xmlText = xmlText.replace(/```xml/g, '').replace(/```/g, '').trim();
 
       if (!xmlText.startsWith('<xml') && !xmlText.startsWith('<block')) {
@@ -103,7 +111,8 @@ const AiGeneratorChat: React.FC<AiGeneratorChatProps> = ({ workspace }) => {
 
     } catch (err) {
       console.error("AI Generation Error:", err);
-      setMessages(prev => [...prev, { role: 'assistant', content: `生成失败: ${err instanceof Error ? err.message : '未知错误'}` }]);
+      const errorMsg = typeof err === 'string' ? err : (err instanceof Error ? err.message : '未知错误');
+      setMessages(prev => [...prev, { role: 'assistant', content: `生成失败: ${errorMsg}` }]);
     } finally {
       setIsLoading(false);
     }

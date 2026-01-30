@@ -2,27 +2,29 @@ use serde::{Deserialize, Serialize};
 mod client;
 use client::{AiClient, AiConfig};
 
-#[derive(Deserialize)]
-pub struct GenerateBlocksArgs {
-    pub prompt: String,
-    pub context: String,
-    pub api_key: Option<String>,
-    pub api_url: Option<String>,
-    pub model: Option<String>,
-}
-
-#[derive(Serialize)]
-pub struct GenerateBlocksResponse {
-    pub result: String,
-}
-
 #[tauri::command]
-pub async fn generate_blocks(args: GenerateBlocksArgs) -> Result<GenerateBlocksResponse, String> {
-    // Prioritize passed args, then env vars, then defaults (Logic moved to client::AiConfig::resolve)
-    let config = AiConfig::resolve(args.api_key, args.api_url, args.model)?;
+pub async fn generate_blocks(
+    prompt: String, 
+    context: String, 
+    api_key: Option<String>, 
+    api_url: Option<String>, 
+    model: Option<String>
+) -> Result<String, String> {
+    println!("[AiCommand] generate_blocks entry");
+    println!("[AiCommand] prompt: {}", prompt);
+    println!("[AiCommand] context length: {} chars", context.len());
+    if context.len() > 0 {
+        println!("[AiCommand] context snippet: {}...", &context[..context.len().min(100)]);
+    }
+    
+    // Prioritize passed args, then env vars, then defaults
+    let config = AiConfig::resolve(api_key, api_url, model)?;
+
+    println!("[AiCommand] Resolved config: url={}, model={}", config.api_url, config.model);
+    log::info!("[AiCommand] Resolved config: url={}, model={}", config.api_url, config.model);
 
     let client = AiClient::new(config);
-    let result = client.generate(args.prompt, args.context).await?;
+    let result = client.generate(prompt, context).await?;
 
-    Ok(GenerateBlocksResponse { result })
+    Ok(result)
 }

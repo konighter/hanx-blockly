@@ -29,8 +29,8 @@ const DEFAULTS: Record<string, AiSettings> = {
   },
   ollama: {
     provider: 'ollama',
-    apiKey: 'ollama', // Ollama mostly doesn't need key
-    apiUrl: 'http://localhost:11434/api/chat',
+    apiKey: '', // Ollama mostly doesn't need key
+    apiUrl: 'http://localhost:11434/v1/chat/completions',
     model: 'llama3',
   }
 };
@@ -44,7 +44,13 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose }) => {
     const saved = localStorage.getItem('ai_settings');
     if (saved) {
       try {
-        setSettings(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Migration: clear dummy 'ollama' key that causes 401
+        if (parsed.apiKey === 'ollama') {
+          parsed.apiKey = '';
+          localStorage.setItem('ai_settings', JSON.stringify(parsed));
+        }
+        setSettings(parsed);
       } catch (e) {
         console.error("Failed to parse settings", e);
       }
@@ -58,7 +64,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose }) => {
     setSettings(prev => ({
       ...newDefaults,
       // Optional: retain key if switching between compatible providers? No, usually distinct keys.
-      apiKey: provider === 'ollama' ? 'ollama' : '', 
+      apiKey: '', 
     }));
   };
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Loader2, X } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import * as Blockly from 'blockly';
 import { extensionManager } from '../services/ExtensionManager';
+import type { AiSettings } from './SettingsDrawer';
 
 interface AiGeneratorModalProps {
   isOpen: boolean;
@@ -14,11 +15,31 @@ const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({ isOpen, onClose, wo
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [settings, setSettings] = useState<AiSettings | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const saved = localStorage.getItem('ai_settings');
+      if (saved) {
+        try {
+          setSettings(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse settings", e);
+        }
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
     if (!prompt.trim() || !workspace) return;
+
+    // Validate Settings
+    if (!settings?.apiKey && settings?.provider !== 'ollama') {
+      setError('请先在设置中配置 API Key');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -29,13 +50,16 @@ const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({ isOpen, onClose, wo
       const context = JSON.stringify(allBlocks, null, 2);
 
       // 2. Call Backend
-      const response = await invoke<{ result: string }>('generate_blocks', {
+      const response = await invoke<string>('generate_blocks', {
         prompt,
-        context
+        context,
+        apiKey: settings?.apiKey,
+        apiUrl: settings?.apiUrl,
+        model: settings?.model
       });
 
       // 3. Clean and Apply XML
-      let xmlText = response.result;
+      let xmlText = response;
       
       // Basic cleanup if AI returns markdown code blocks
       xmlText = xmlText.replace(/```xml/g, '').replace(/```/g, '').trim();
@@ -56,7 +80,7 @@ const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({ isOpen, onClose, wo
       onClose();
     } catch (err) {
       console.error("AI Generation Error:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate blocks");
+      setError(typeof err === 'string' ? err : (err instanceof Error ? err.message : "Failed to generate blocks"));
     } finally {
       setIsLoading(false);
     }

@@ -2,6 +2,482 @@ import * as Blockly from 'blockly';
 
 let blocksRegistered = false;
 
+export const ARDUINO_BLOCK_DEFINITIONS = [
+  // Setup/Loop
+  {
+    "type": "arduino_setup",
+    "message0": "初始化 (Setup) %1 执行 (Loop) %2",
+    "args0": [
+      { "type": "input_statement", "name": "SETUP" },
+      { "type": "input_statement", "name": "LOOP" }
+    ],
+    "colour": "360",
+    "tooltip": "setup() 代码运行一次，loop() 代码重复运行。",
+    "helpUrl": "https://www.arduino.cc/en/Reference/HomePage"
+  },
+  // Digital Write
+  {
+    "type": "arduino_digital_write",
+    "message0": "数字输出 管脚# %1 设为 %2",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" },
+      { "type": "input_value", "name": "STATE" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160",
+    "tooltip": "将数字信号（HIGH或LOW）写入特定的数字。"
+  },
+  // Digital Read
+  {
+    "type": "arduino_digital_read",
+    "message0": "数字输入 管脚# %1",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "160",
+    "tooltip": "从指定的数字管脚读取数字值。"
+  },
+  // Analog Write
+  {
+    "type": "arduino_analog_write",
+    "message0": "模拟输出 管脚# %1 赋值为 %2",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" },
+      { "type": "input_value", "name": "VALUE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160",
+    "tooltip": "将模拟值(PWM波)写入管脚。"
+  },
+  // Analog Read
+  {
+    "type": "arduino_analog_read",
+    "message0": "模拟输入 管脚# %1",
+    "args0": [
+      { "type": "input_value", "name": "PIN" }
+    ],
+    "output": "Number",
+    "colour": "160",
+    "tooltip": "从指定的模拟管脚读取数值。"
+  },
+  // High/Low Constant
+  {
+    "type": "arduino_highlow",
+    "message0": "%1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "STATE",
+        "options": [
+          ["高 (HIGH)", "HIGH"],
+          ["低 (LOW)", "LOW"]
+        ]
+      }
+    ],
+    "output": "Number",
+    "colour": "160"
+  },
+  // Hardware Interrupt
+  {
+     "type": "arduino_interrupt",
+     "message0": "硬件中断 管脚# %1 模式 %2 执行 %3",
+     "args0": [
+       { "type": "input_value", "name": "PIN", "check": "Number" },
+       { 
+         "type": "field_dropdown", 
+         "name": "MODE", 
+         "options": [
+           ["上升 (RISING)", "RISING"],
+           ["下降 (FALLING)", "FALLING"],
+           ["改变 (CHANGE)", "CHANGE"],
+           ["低 (LOW)", "LOW"]
+         ] 
+       },
+       { "type": "input_statement", "name": "DO" }
+     ],
+     "previousStatement": null,
+     "nextStatement": null,
+     "colour": "160"
+  },
+  // Detach Interrupt
+  {
+    "type": "arduino_detach_interrupt",
+    "message0": "取消硬件中断 管脚# %1",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160"
+  },
+  // Pulse In
+  {
+    "type": "arduino_pulse_in",
+    "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" },
+      { "type": "input_value", "name": "STATE" }
+    ],
+    "output": "Number",
+    "colour": "160"
+  },
+  // Pulse In with Timeout
+  {
+    "type": "arduino_pulse_in_timeout",
+    "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2 超时 (微秒) %3",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" },
+      { "type": "input_value", "name": "STATE" },
+      { "type": "input_value", "name": "TIMEOUT", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "160"
+  },
+  // Tone
+  {
+     "type": "arduino_tone",
+     "message0": "播放音调 管脚# %1 频率 %2 持续时间 %3",
+     "args0": [
+       { "type": "input_value", "name": "PIN", "check": "Number" },
+       { "type": "input_value", "name": "FREQ", "check": "Number" },
+       { "type": "input_value", "name": "DURATION", "check": "Number" }
+     ],
+     "previousStatement": null,
+     "nextStatement": null,
+     "colour": "160"
+  },
+  // NoTone
+  {
+    "type": "arduino_notone",
+    "message0": "停止播放音调 管脚# %1",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160"
+  },
+  // ShiftOut
+  {
+    "type": "arduino_shiftout",
+    "message0": "ShiftOut 数据管脚# %1 时钟管脚# %2 顺序 %3 数值 %4",
+    "args0": [
+      { "type": "input_value", "name": "DATA", "check": "Number" },
+      { "type": "input_value", "name": "CLOCK", "check": "Number" },
+      { 
+        "type": "field_dropdown", 
+        "name": "ORDER", 
+        "options": [
+          ["高位先入 (MSBFIRST)", "MSBFIRST"],
+          ["低位先入 (LSBFIRST)", "LSBFIRST"]
+        ] 
+      },
+      { "type": "input_value", "name": "VALUE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160"
+  },
+  // PinMode
+  {
+    "type": "arduino_pin_mode",
+    "message0": "管脚模式 %1 设为 %2",
+    "args0": [
+      { "type": "input_value", "name": "PIN", "check": "Number" },
+      { 
+        "type": "field_dropdown", 
+        "name": "MODE", 
+        "options": [
+          ["输入 (INPUT)", "INPUT"],
+          ["输出 (OUTPUT)", "OUTPUT"],
+          ["输入上拉 (INPUT_PULLUP)", "INPUT_PULLUP"]
+        ] 
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "160"
+  },
+  // Delay
+  {
+    "type": "arduino_delay",
+    "message0": "延时 %1 %2",
+    "args0": [
+      { 
+        "type": "field_dropdown", 
+        "name": "UNIT", 
+        "options": [
+          ["毫秒 (ms)", "ms"],
+          ["微秒 (us)", "us"]
+        ] 
+      },
+      { "type": "input_value", "name": "VALUE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "120"
+  },
+  // System Time
+  {
+    "type": "arduino_system_time",
+    "message0": "系统运行时间 %1",
+    "args0": [
+      { 
+        "type": "field_dropdown", 
+        "name": "UNIT", 
+        "options": [
+          ["毫秒 (ms)", "ms"],
+          ["微秒 (us)", "us"]
+        ] 
+      }
+    ],
+    "output": "Number",
+    "colour": "120"
+  },
+  // Interrupt Control
+  {
+    "type": "arduino_interrupt_control",
+    "message0": "%1中断",
+    "args0": [
+      { 
+        "type": "field_dropdown", 
+        "name": "ACTION", 
+        "options": [
+          ["允许", "interrupts"],
+          ["禁止", "noInterrupts"]
+        ] 
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "120"
+  },
+  // Serial Print
+  {
+     "type": "arduino_serial_print",
+     "message0": "串口打印 %1",
+     "args0": [
+       { "type": "input_value", "name": "CONTENT" }
+     ],
+     "previousStatement": null,
+     "nextStatement": null,
+     "colour": "160"
+  },
+  // Serial Println
+  {
+     "type": "arduino_serial_println",
+     "message0": "串口打印 (换行) %1",
+     "args0": [
+       { "type": "input_value", "name": "CONTENT" }
+     ],
+     "previousStatement": null,
+     "nextStatement": null,
+     "colour": "160"
+  },
+  // Serial Available
+  {
+    "type": "arduino_serial_available",
+    "message0": "串口有数据可读?",
+    "output": "Boolean",
+    "colour": "160"
+  },
+  // Serial Read
+  {
+    "type": "arduino_serial_read",
+    "message0": "串口读取字节",
+    "output": "Number",
+    "colour": "160"
+  },
+  // Text to Int
+  {
+    "type": "arduino_text_toInt",
+    "message0": "文本 %1 转为整数",
+    "args0": [{ "type": "input_value", "name": "TEXT" }],
+    "output": "Number",
+    "colour": "160"
+  },
+  // Text to Float
+  {
+    "type": "arduino_text_toFloat",
+    "message0": "文本 %1 转为浮点数",
+    "args0": [{ "type": "input_value", "name": "TEXT" }],
+    "output": "Number",
+    "colour": "160"
+  },
+  // Math Map
+  {
+    "type": "math_map",
+    "message0": "将 %1 从 [%2, %3] 映射到 [%4, %5]",
+    "args0": [
+      { "type": "input_value", "name": "VALUE", "check": "Number" },
+      { "type": "input_value", "name": "FROMLOW", "check": "Number" },
+      { "type": "input_value", "name": "FROMHIGH", "check": "Number" },
+      { "type": "input_value", "name": "TOLOW", "check": "Number" },
+      { "type": "input_value", "name": "TOHIGH", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "将一个数值从一个范围映射到另一个范围。"
+  },
+  // Math Constrain
+  {
+    "type": "math_constrain",
+    "message0": "将 %1 限制在 [%2, %3] 之间",
+    "args0": [
+      { "type": "input_value", "name": "VALUE", "check": "Number" },
+      { "type": "input_value", "name": "LOW", "check": "Number" },
+      { "type": "input_value", "name": "HIGH", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "将一个数值限制在两个数值之间。"
+  },
+  // Math Random Seed
+  {
+    "type": "math_random_seed",
+    "message0": "设置随机数种子 %1",
+    "args0": [
+      { "type": "input_value", "name": "VALUE", "check": "Number" }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "230",
+    "tooltip": "初始化随机数生成器。"
+  },
+  // Math Factorial
+  {
+    "type": "math_factorial",
+    "message0": "%1 的阶乘",
+    "args0": [
+      { "type": "input_value", "name": "NUM", "check": "Number" }
+    ],
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "计算一个数的阶乘 (n!)"
+  },
+  // Math GCD
+  {
+    "type": "math_gcd",
+    "message0": "%1 和 %2 的最大公约数",
+    "args0": [
+      { "type": "input_value", "name": "A", "check": "Number" },
+      { "type": "input_value", "name": "B", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "计算两个数的最大公约数"
+  },
+  // Math LCM
+  {
+    "type": "math_lcm",
+    "message0": "%1 和 %2 的最小公倍数",
+    "args0": [
+      { "type": "input_value", "name": "A", "check": "Number" },
+      { "type": "input_value", "name": "B", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "计算两个数的最小公倍数"
+  },
+  // Math Prime Check
+  {
+    "type": "math_prime_check",
+    "message0": "%1 是质数？",
+    "args0": [
+      { "type": "input_value", "name": "NUM", "check": "Number" }
+    ],
+    "output": "Boolean",
+    "colour": "230",
+    "tooltip": "检查一个数是否为质数"
+  },
+  // Array Math operations
+  {
+    "type": "math_array_sum",
+    "message0": "数组 %1 的总和",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "计算数组的总和。"
+  },
+  {
+    "type": "math_array_mean",
+    "message0": "数组 %1 的平均值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "计算数组的平均值。"
+  },
+  {
+    "type": "math_array_max",
+    "message0": "数组 %1 的最大值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "获取数组的最大值。"
+  },
+  {
+    "type": "math_array_min",
+    "message0": "数组 %1 的最小值",
+    "args0": [
+      { "type": "input_value", "name": "LIST", "check": "Array" }
+    ],
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "获取数组的最小值。"
+  },
+  // Redefine math_arithmetic to include Modulo
+  {
+    "type": "math_arithmetic",
+    "message0": "%1 %2 %3",
+    "args0": [
+      { "type": "input_value", "name": "A", "check": "Number" },
+      { 
+        "type": "field_dropdown", 
+        "name": "OP", 
+        "options": [
+          ["+", "ADD"],
+          ["-", "MINUS"],
+          ["*", "MULTIPLY"],
+          ["/", "DIVIDE"],
+          ["%", "MODULO"],
+          ["^", "POWER"]
+        ] 
+      },
+      { "type": "input_value", "name": "B", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "对两个数进行数学计算。"
+  },
+  // Standard Modulo block
+  {
+    "type": "math_modulo",
+    "message0": "%1 ÷ %2 的余数",
+    "args0": [
+      { "type": "input_value", "name": "DIVIDEND", "check": "Number" },
+      { "type": "input_value", "name": "DIVISOR", "check": "Number" }
+    ],
+    "inputsInline": true,
+    "output": "Number",
+    "colour": "230",
+    "tooltip": "返回两个数相除后的余数。"
+  }
+];
+
 export const defineArduinoBlocks = () => {
   if (blocksRegistered) {
     console.log('[ArduinoBlocks] Already registered.');
@@ -181,479 +657,5 @@ export const defineArduinoBlocks = () => {
   };
 
   // 1. Standard Arduino Blocks (JSON definition)
-  Blockly.defineBlocksWithJsonArray([
-    // Setup/Loop
-    {
-      "type": "arduino_setup",
-      "message0": "初始化 (Setup) %1 执行 (Loop) %2",
-      "args0": [
-        { "type": "input_statement", "name": "SETUP" },
-        { "type": "input_statement", "name": "LOOP" }
-      ],
-      "colour": "360",
-      "tooltip": "setup() 代码运行一次，loop() 代码重复运行。",
-      "helpUrl": "https://www.arduino.cc/en/Reference/HomePage"
-    },
-    // Digital Write
-    {
-      "type": "arduino_digital_write",
-      "message0": "数字输出 管脚# %1 设为 %2",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { "type": "input_value", "name": "STATE" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160",
-      "tooltip": "将数字信号（HIGH或LOW）写入特定的数字。"
-    },
-    // Digital Read
-    {
-      "type": "arduino_digital_read",
-      "message0": "数字输入 管脚# %1",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" }
-      ],
-      "output": "Number",
-      "colour": "160",
-      "tooltip": "从指定的数字管脚读取数字值。"
-    },
-    // Analog Write
-    {
-      "type": "arduino_analog_write",
-      "message0": "模拟输出 管脚# %1 赋值为 %2",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { "type": "input_value", "name": "VALUE", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160",
-      "tooltip": "将模拟值(PWM波)写入管脚。"
-    },
-    // Analog Read
-    {
-      "type": "arduino_analog_read",
-      "message0": "模拟输入 管脚# %1",
-      "args0": [
-        { "type": "input_value", "name": "PIN" }
-      ],
-      "output": "Number",
-      "colour": "160",
-      "tooltip": "从指定的模拟管脚读取数值。"
-    },
-    // High/Low Constant
-    {
-      "type": "arduino_highlow",
-      "message0": "%1",
-      "args0": [
-        {
-          "type": "field_dropdown",
-          "name": "STATE",
-          "options": [
-            ["高 (HIGH)", "HIGH"],
-            ["低 (LOW)", "LOW"]
-          ]
-        }
-      ],
-      "output": "Number",
-      "colour": "160"
-    },
-    // Hardware Interrupt
-    {
-       "type": "arduino_interrupt",
-       "message0": "硬件中断 管脚# %1 模式 %2 执行 %3",
-       "args0": [
-         { "type": "input_value", "name": "PIN", "check": "Number" },
-         { 
-           "type": "field_dropdown", 
-           "name": "MODE", 
-           "options": [
-             ["上升 (RISING)", "RISING"],
-             ["下降 (FALLING)", "FALLING"],
-             ["改变 (CHANGE)", "CHANGE"],
-             ["低 (LOW)", "LOW"]
-           ] 
-         },
-         { "type": "input_statement", "name": "DO" }
-       ],
-       "previousStatement": null,
-       "nextStatement": null,
-       "colour": "160"
-    },
-    // Detach Interrupt
-    {
-      "type": "arduino_detach_interrupt",
-      "message0": "取消硬件中断 管脚# %1",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
-    },
-    // Pulse In
-    {
-      "type": "arduino_pulse_in",
-      "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { "type": "input_value", "name": "STATE" }
-      ],
-      "output": "Number",
-      "colour": "160"
-    },
-    // Pulse In with Timeout
-    {
-      "type": "arduino_pulse_in_timeout",
-      "message0": "脉冲长度 (微秒) 管脚# %1 状态 %2 超时 (微秒) %3",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { "type": "input_value", "name": "STATE" },
-        { "type": "input_value", "name": "TIMEOUT", "check": "Number" }
-      ],
-      "output": "Number",
-      "colour": "160"
-    },
-    // Tone
-    {
-       "type": "arduino_tone",
-       "message0": "播放音调 管脚# %1 频率 %2 持续时间 %3",
-       "args0": [
-         { "type": "input_value", "name": "PIN", "check": "Number" },
-         { "type": "input_value", "name": "FREQ", "check": "Number" },
-         { "type": "input_value", "name": "DURATION", "check": "Number" }
-       ],
-       "previousStatement": null,
-       "nextStatement": null,
-       "colour": "160"
-    },
-    // NoTone
-    {
-      "type": "arduino_notone",
-      "message0": "停止播放音调 管脚# %1",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
-    },
-    // ShiftOut
-    {
-      "type": "arduino_shiftout",
-      "message0": "ShiftOut 数据管脚# %1 时钟管脚# %2 顺序 %3 数值 %4",
-      "args0": [
-        { "type": "input_value", "name": "DATA", "check": "Number" },
-        { "type": "input_value", "name": "CLOCK", "check": "Number" },
-        { 
-          "type": "field_dropdown", 
-          "name": "ORDER", 
-          "options": [
-            ["高位先入 (MSBFIRST)", "MSBFIRST"],
-            ["低位先入 (LSBFIRST)", "LSBFIRST"]
-          ] 
-        },
-        { "type": "input_value", "name": "VALUE", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
-    },
-    // PinMode
-    {
-      "type": "arduino_pin_mode",
-      "message0": "管脚模式 %1 设为 %2",
-      "args0": [
-        { "type": "input_value", "name": "PIN", "check": "Number" },
-        { 
-          "type": "field_dropdown", 
-          "name": "MODE", 
-          "options": [
-            ["输入 (INPUT)", "INPUT"],
-            ["输出 (OUTPUT)", "OUTPUT"],
-            ["输入上拉 (INPUT_PULLUP)", "INPUT_PULLUP"]
-          ] 
-        }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "160"
-    },
-    // Delay
-    {
-      "type": "arduino_delay",
-      "message0": "延时 %1 %2",
-      "args0": [
-        { 
-          "type": "field_dropdown", 
-          "name": "UNIT", 
-          "options": [
-            ["毫秒 (ms)", "ms"],
-            ["微秒 (us)", "us"]
-          ] 
-        },
-        { "type": "input_value", "name": "VALUE", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
-    },
-    // System Time
-    {
-      "type": "arduino_system_time",
-      "message0": "系统运行时间 %1",
-      "args0": [
-        { 
-          "type": "field_dropdown", 
-          "name": "UNIT", 
-          "options": [
-            ["毫秒 (ms)", "ms"],
-            ["微秒 (us)", "us"]
-          ] 
-        }
-      ],
-      "output": "Number",
-      "colour": "120"
-    },
-    // Interrupt Control
-    {
-      "type": "arduino_interrupt_control",
-      "message0": "%1中断",
-      "args0": [
-        { 
-          "type": "field_dropdown", 
-          "name": "ACTION", 
-          "options": [
-            ["允许", "interrupts"],
-            ["禁止", "noInterrupts"]
-          ] 
-        }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "120"
-    },
-    // Serial Print
-    {
-       "type": "arduino_serial_print",
-       "message0": "串口打印 %1",
-       "args0": [
-         { "type": "input_value", "name": "CONTENT" }
-       ],
-       "previousStatement": null,
-       "nextStatement": null,
-       "colour": "160"
-    },
-    // Serial Println
-    {
-       "type": "arduino_serial_println",
-       "message0": "串口打印 (换行) %1",
-       "args0": [
-         { "type": "input_value", "name": "CONTENT" }
-       ],
-       "previousStatement": null,
-       "nextStatement": null,
-       "colour": "160"
-    },
-    // Serial Available
-    {
-      "type": "arduino_serial_available",
-      "message0": "串口有数据可读?",
-      "output": "Boolean",
-      "colour": "160"
-    },
-    // Serial Read
-    {
-      "type": "arduino_serial_read",
-      "message0": "串口读取字节",
-      "output": "Number",
-      "colour": "160"
-    },
-    // Text to Int
-    {
-      "type": "arduino_text_toInt",
-      "message0": "文本 %1 转为整数",
-      "args0": [{ "type": "input_value", "name": "TEXT" }],
-      "output": "Number",
-      "colour": "160"
-    },
-    // Text to Float
-    {
-      "type": "arduino_text_toFloat",
-      "message0": "文本 %1 转为浮点数",
-      "args0": [{ "type": "input_value", "name": "TEXT" }],
-      "output": "Number",
-      "colour": "160"
-    },
-    // Math Map
-    {
-      "type": "math_map",
-      "message0": "将 %1 从 [%2, %3] 映射到 [%4, %5]",
-      "args0": [
-        { "type": "input_value", "name": "VALUE", "check": "Number" },
-        { "type": "input_value", "name": "FROMLOW", "check": "Number" },
-        { "type": "input_value", "name": "FROMHIGH", "check": "Number" },
-        { "type": "input_value", "name": "TOLOW", "check": "Number" },
-        { "type": "input_value", "name": "TOHIGH", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "将一个数值从一个范围映射到另一个范围。"
-    },
-    // Math Constrain
-    {
-      "type": "math_constrain",
-      "message0": "将 %1 限制在 [%2, %3] 之间",
-      "args0": [
-        { "type": "input_value", "name": "VALUE", "check": "Number" },
-        { "type": "input_value", "name": "LOW", "check": "Number" },
-        { "type": "input_value", "name": "HIGH", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "将一个数值限制在两个数值之间。"
-    },
-    // Math Random Seed
-    {
-      "type": "math_random_seed",
-      "message0": "设置随机数种子 %1",
-      "args0": [
-        { "type": "input_value", "name": "VALUE", "check": "Number" }
-      ],
-      "previousStatement": null,
-      "nextStatement": null,
-      "colour": "230",
-      "tooltip": "初始化随机数生成器。"
-    },
-    // Math Factorial
-    {
-      "type": "math_factorial",
-      "message0": "%1 的阶乘",
-      "args0": [
-        { "type": "input_value", "name": "NUM", "check": "Number" }
-      ],
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "计算一个数的阶乘 (n!)"
-    },
-    // Math GCD
-    {
-      "type": "math_gcd",
-      "message0": "%1 和 %2 的最大公约数",
-      "args0": [
-        { "type": "input_value", "name": "A", "check": "Number" },
-        { "type": "input_value", "name": "B", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "计算两个数的最大公约数"
-    },
-    // Math LCM
-    {
-      "type": "math_lcm",
-      "message0": "%1 和 %2 的最小公倍数",
-      "args0": [
-        { "type": "input_value", "name": "A", "check": "Number" },
-        { "type": "input_value", "name": "B", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "计算两个数的最小公倍数"
-    },
-    // Math Prime Check
-    {
-      "type": "math_prime_check",
-      "message0": "%1 是质数？",
-      "args0": [
-        { "type": "input_value", "name": "NUM", "check": "Number" }
-      ],
-      "output": "Boolean",
-      "colour": "230",
-      "tooltip": "检查一个数是否为质数"
-    },
-    // Array Math operations (Inspired by Python advanced math)
-    {
-      "type": "math_array_sum",
-      "message0": "数组 %1 的总和",
-      "args0": [
-        { "type": "input_value", "name": "LIST", "check": "Array" }
-      ],
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "计算数组的总和。"
-    },
-    {
-      "type": "math_array_mean",
-      "message0": "数组 %1 的平均值",
-      "args0": [
-        { "type": "input_value", "name": "LIST", "check": "Array" }
-      ],
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "计算数组的平均值。"
-    },
-    {
-      "type": "math_array_max",
-      "message0": "数组 %1 的最大值",
-      "args0": [
-        { "type": "input_value", "name": "LIST", "check": "Array" }
-      ],
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "获取数组的最大值。"
-    },
-    {
-      "type": "math_array_min",
-      "message0": "数组 %1 的最小值",
-      "args0": [
-        { "type": "input_value", "name": "LIST", "check": "Array" }
-      ],
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "获取数组的最小值。"
-    },
-    // Redefine math_arithmetic to include Modulo
-    {
-      "type": "math_arithmetic",
-      "message0": "%1 %2 %3",
-      "args0": [
-        { "type": "input_value", "name": "A", "check": "Number" },
-        { 
-          "type": "field_dropdown", 
-          "name": "OP", 
-          "options": [
-            ["+", "ADD"],
-            ["-", "MINUS"],
-            ["*", "MULTIPLY"],
-            ["/", "DIVIDE"],
-            ["%", "MODULO"],
-            ["^", "POWER"]
-          ] 
-        },
-        { "type": "input_value", "name": "B", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "对两个数进行数学计算。"
-    },
-    // Standard Modulo block
-    {
-      "type": "math_modulo",
-      "message0": "%1 ÷ %2 的余数",
-      "args0": [
-        { "type": "input_value", "name": "DIVIDEND", "check": "Number" },
-        { "type": "input_value", "name": "DIVISOR", "check": "Number" }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": "230",
-      "tooltip": "返回两个数相除后的余数。"
-    }
-  ]);
+  Blockly.defineBlocksWithJsonArray(ARDUINO_BLOCK_DEFINITIONS);
 };

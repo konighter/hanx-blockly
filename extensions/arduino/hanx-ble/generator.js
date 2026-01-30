@@ -6,9 +6,9 @@ generator.forBlock['ble_init'] = function(block) {
   generator.addDefinition('include_ble', '#include <ArduinoBLE.h>');
   generator.addLoop('ble_poll', 'BLE.poll();');
   
-  return 'if (!BLE.begin()) { while (1); }\n' +
-         'BLE.setLocalName(' + name + ');\n' +
-         'BLE.setDeviceName(' + name + ');\n';
+  generator.addSetup('ble_01_init', 'if (!BLE.begin()) { while (1); }\n  BLE.setLocalName(' + name + ');\n  BLE.setDeviceName(' + name + ');');
+  
+  return '';
 };
 
 generator.forBlock['ble_advertise'] = function(block) {

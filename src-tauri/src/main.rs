@@ -52,6 +52,11 @@ fn main() {
         &[
           &undo_item,
           &redo_item,
+          &PredefinedMenuItem::separator(app)?,
+          &PredefinedMenuItem::cut(app, Some("剪切"))?,
+          &PredefinedMenuItem::copy(app, Some("复制"))?,
+          &PredefinedMenuItem::paste(app, Some("粘贴"))?,
+          &PredefinedMenuItem::select_all(app, Some("全选"))?,
         ],
       )?;
 

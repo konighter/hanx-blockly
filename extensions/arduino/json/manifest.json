@@ -1,0 +1,24 @@
+{
+  "id": "arduino-json",
+  "name": "ArduinoJson",
+  "version": "1.0.0",
+  "description": "JSON parsing and generation using the ArduinoJson library",
+  "author": "HanX",
+  "platform": "arduino",
+  "category": "Communication",
+  "icon": "📜",
+  "dependencies": {
+    "arduino": ["ArduinoJson"]
+  },
+  "toolbox": [
+    {
+      "kind": "category",
+      "name": "ArduinoJson",
+      "colour": "#00979D",
+      "contents": [
+        { "kind": "block", "type": "json_parse" },
+        { "kind": "block", "type": "json_get_value" }
+      ]
+    }
+  ]
+}

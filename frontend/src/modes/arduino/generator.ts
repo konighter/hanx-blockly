@@ -32,6 +32,7 @@ arduinoGenerator.init = function(workspace: Blockly.Workspace) {
   this.definitions_ = Object.create(null);
   this.setups_ = Object.create(null);
   this.loops_ = Object.create(null);
+  this.functions_ = Object.create(null);
   
   // Initialize variable database
   if (!this.nameDB_) {
@@ -64,6 +65,10 @@ arduinoGenerator.addLoop = function(name: string, code: string) {
   this.loops_[name] = code;
 };
 
+arduinoGenerator.addFunction = function(name: string, code: string) {
+  this.functions_[name] = code;
+};
+
 // Finalize code structure
 arduinoGenerator.finish = function(code: string) {
   const definitions = [];
@@ -94,8 +99,15 @@ arduinoGenerator.finish = function(code: string) {
   }
 
   const loopCode = `void loop() {\n${loops.join('\n')}${loops.length && code.trim() ? '\n' : ''}${code.split('\n').filter((l: string) => l).map((line: string) => '  ' + line).join('\n')}\n}\n`;
+
+  const functions = [];
+  const functionKeys = Object.keys(this.functions_).sort();
+  for (let key of functionKeys) {
+    functions.push(this.functions_[key]);
+  }
+  const functionCode = functions.join('\n');
   
-  return allDefs + setupCode + loopCode;
+  return allDefs + setupCode + loopCode + '\n' + functionCode;
 };
 
 // Scrub helper for comments and next blocks
@@ -130,13 +142,21 @@ export const initArduinoGenerator = () => {
     const funcName = arduinoGenerator.nameDB_.getName(block.getFieldValue('NAME'), 'PROCEDURE');
     const branch = arduinoGenerator.statementToCode(block, 'STACK');
     const args = [];
+    const argsType = [];
     // @ts-ignore
     const variables = block.arguments_ || [];
     for (let i = 0; i < variables.length; i++) {
       args.push('int ' + arduinoGenerator.nameDB_.getName(variables[i], 'VARIABLE'));
+      argsType.push('int');
     }
+    
+    // Create prototype
+    const prototype = `void ${funcName}(${args.join(', ')});`;
+    arduinoGenerator.addDefinition(funcName, prototype);
+    
+    // Create function body
     const code = `void ${funcName}(${args.join(', ')}) {\n${branch}}\n`;
-    arduinoGenerator.addDefinition(funcName, code);
+    arduinoGenerator.addFunction(funcName, code);
     return '';
   };
 
@@ -151,12 +171,18 @@ export const initArduinoGenerator = () => {
     for (let i = 0; i < variables.length; i++) {
       args.push('int ' + arduinoGenerator.nameDB_.getName(variables[i], 'VARIABLE'));
     }
+    
+    // Create prototype
+    const prototype = `int ${funcName}(${args.join(', ')});`;
+    arduinoGenerator.addDefinition(funcName, prototype);
+    
+    // Create function body
     let code = `int ${funcName}(${args.join(', ')}) {\n${branch}`;
     if (returnValue) {
       code += `  return ${returnValue};\n`;
     }
     code += `}\n`;
-    arduinoGenerator.addDefinition(funcName, code);
+    arduinoGenerator.addFunction(funcName, code);
     return '';
   };
 
@@ -196,8 +222,14 @@ export const initArduinoGenerator = () => {
     for (let i = 0; i < variables.length; i++) {
       args.push(variables[i].type + ' ' + arduinoGenerator.nameDB_.getName(variables[i].name, 'VARIABLE'));
     }
+
+    // Create prototype
+    const prototype = `void ${funcName}(${args.join(', ')});`;
+    arduinoGenerator.addDefinition(funcName, prototype);
+
+    // Create function body
     const code = `void ${funcName}(${args.join(', ')}) {\n${branch}}\n`;
-    arduinoGenerator.addDefinition(funcName, code);
+    arduinoGenerator.addFunction(funcName, code);
     return '';
   };
 
@@ -213,12 +245,18 @@ export const initArduinoGenerator = () => {
     for (let i = 0; i < variables.length; i++) {
         args.push(variables[i].type + ' ' + arduinoGenerator.nameDB_.getName(variables[i].name, 'VARIABLE'));
     }
+
+    // Create prototype
+    const prototype = `${returnType} ${funcName}(${args.join(', ')});`;
+    arduinoGenerator.addDefinition(funcName, prototype);
+
+    // Create function body
     let code = `${returnType} ${funcName}(${args.join(', ')}) {\n${branch}`;
     if (returnValue) {
       code += `  return ${returnValue};\n`;
     }
     code += `}\n`;
-    arduinoGenerator.addDefinition(funcName, code);
+    arduinoGenerator.addFunction(funcName, code);
     return '';
   };
 
